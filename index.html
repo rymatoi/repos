@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101521">
+<meta name="description" content="Интерактивные лабиринты для телефона и компьютера. Генерируй, исследуй, находи выход.">
+<title>Лабиринт — маленькое приключение</title>
+<style>
+:root{color-scheme:dark;--bg:#101521;--panel:#1b2333;--ink:#f2f6ff;--muted:#9da9bb;--accent:#83f0cb;--line:#333e51}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 48% -15%,#2b3d50 0,transparent 55%),var(--bg);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,canvas:focus-visible{outline:3px solid #e9be7d;outline-offset:3px}
+main{max-width:620px;margin:auto;padding:24px 17px max(26px,env(safe-area-inset-bottom));display:grid;gap:16px}
+header{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+h1{font-size:clamp(30px,7vw,42px);letter-spacing:-.055em;line-height:1.05;margin:0}
+.subtitle{color:var(--muted);font-size:14px;margin:9px 0 0;line-height:1.5}
+.icon{width:46px;height:46px;flex:none;display:grid;place-items:center;border:1px solid #405068;border-radius:17px;background:#1f2938;font-size:24px}
+.panel{background:linear-gradient(150deg,#202b3b,#171e2e);border:1px solid #344055;border-radius:22px;padding:15px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.choices{display:flex;background:#101826;border-radius:13px;padding:4px;gap:3px}
+.choices button{border:none;background:transparent;color:var(--muted);border-radius:10px;padding:8px 10px;font-size:13px;font-weight:650}
+.choices button[aria-pressed=true]{background:#334359;color:white;box-shadow:0 2px 9px #05070d4a}
+.primary{border:0;background:var(--accent);color:#0b2822;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:800}
+.boardbox{margin-top:15px;background:#0d1420;border:1px solid #3a4a5a;border-radius:17px;padding:8px;position:relative}
+canvas{display:block;width:100%;aspect-ratio:1/1;touch-action:none;cursor:pointer;border-radius:10px}
+.legend{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;margin:12px 1px 0;color:#b4c1cf;font-size:12px}
+.legend b{font-weight:800;color:#f6fcff}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;margin-right:5px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.metric{background:#141d2b;border:1px solid #303d50;border-radius:15px;padding:11px 12px}
+.metric span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}
+.metric strong{display:block;font-size:21px;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.controls{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.secondary{border:1px solid #3d4c60;background:#202c3c;color:#f2f7ff;border-radius:12px;padding:11px 13px;font-size:13px;font-weight:700}
+.secondary:active,.primary:active{transform:scale(.98)}
+.dpad{display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(2,40px);gap:4px;touch-action:manipulation}
+.dpad button{border:1px solid #41536a;background:#2a3a4e;border-radius:10px;color:white;font-size:18px;font-weight:800}
+.dpad button:active{background:#3e6173}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.help{margin:0;text-align:center;color:#8796aa;font-size:12px;line-height:1.6}
+.overlay{position:absolute;inset:8px;background:#0d1420e8;backdrop-filter:blur(6px);border-radius:12px;display:none;align-items:center;justify-content:center;padding:20px;text-align:center}
+.overlay.open{display:flex}
+.win{max-width:310px}.win .emoji{font-size:48px}.win h2{font-size:30px;margin:10px 0}.win p{font-size:14px;color:#becbd9;line-height:1.6;margin-bottom:22px}
+footer{text-align:center;font-size:11px;color:#67788f}
+@media(max-width:390px){main{padding:17px 12px 24px}.panel{padding:11px}.bar{align-items:stretch}.choices{width:100%;justify-content:space-between}.choices button{flex:1}.primary{flex:1}.dpad{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,36px)}.secondary{padding:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><div><p class="eyebrow">Браузерная мини-игра</p><h1>Лабиринт<span style="color:var(--accent)">.</span></h1><p class="subtitle">Найди путь из начала в конец. Каждый лабиринт — новый.</p></div><div class="icon" aria-hidden="true">✧</div></header>
+<section class="panel" aria-label="Игровое поле">
+<div class="bar"><div class="choices" role="group" aria-label="Сложность"><button type="button" data-level="13" aria-pressed="true">Лёгкий</button><button type="button" data-level="19" aria-pressed="false">Средний</button><button type="button" data-level="27" aria-pressed="false">Сложный</button></div><button class="primary" id="new" type="button">↻ Новый</button></div>
+<div class="boardbox"><canvas id="maze" width="560" height="560" tabindex="0" role="img" aria-label="Лабиринт: управляй стрелками на клавиатуре, свайпами или кнопками"></canvas><div class="overlay" id="overlay"><div class="win"><div class="emoji">🏆</div><h2>Выход найден!</h2><p id="result"></p><button type="button" class="primary" id="again">Ещё один лабиринт</button></div></div></div>
+<div class="legend"><span><i class="dot" style="background:#83f0cb"></i>Ты</span><span><i class="dot" style="background:#f7bf7f"></i>Выход</span><span><i class="dot" style="background:#687c96"></i>Посещённые клетки</span></div>
+</section>
+<section class="metrics" aria-label="Статистика"><div class="metric"><span>Шаги</span><strong id="steps">0</strong></div><div class="metric"><span>Время</span><strong id="timer">00:00</strong></div><div class="metric"><span>Лучший путь</span><strong id="best">—</strong></div></section>
+<section class="controls"><div class="actions"><button class="secondary" id="hint" type="button">✦ Показать путь</button><button class="secondary" id="reset" type="button">↶ Сначала</button></div><div class="dpad" role="group" aria-label="Управление движением"><button class="up" data-dir="0,-1" aria-label="Вверх">↑</button><button class="left" data-dir="-1,0" aria-label="Влево">←</button><button class="down" data-dir="0,1" aria-label="Вниз">↓</button><button class="right" data-dir="1,0" aria-label="Вправо">→</button></div></section>
+<p class="help">На телефоне — свайпай по полю или нажимай стрелки.<br>На компьютере — стрелки, WASD или кликай по соседней клетке.</p>
+<footer>Без регистрации, рекламы и серверов • Результаты хранятся только в браузере</footer>
+</main>
+<script>
+(function(){
+'use strict';
+const canvas=document.getElementById('maze'),ctx=canvas.getContext('2d');
+const E=id=>document.getElementById(id);
+let n=13,maze=[],player={x:1,y:1},trail=new Set(),steps=0,started=0,elapsed=0,clock=null,done=false,hintPath=null,hintTimer=null;
+const key=(x,y)=>y*n+x;
+const DIR=[[0,-1],[1,0],[0,1],[-1,0]];
+const fmt=ms=>{let s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+function bfs(start,end){
+ const queue=[start],seen=new Set([key(start.x,start.y)]),prev=new Map();
+ let head=0;
+ while(head<queue.length){
+  const p=queue[head++],k=key(p.x,p.y);
+  if(p.x===end.x&&p.y===end.y){
+   let path=[p];let cur=k;
+   while(prev.has(cur)){const q=prev.get(cur);path.push({x:q.x,y:q.y});cur=key(q.x,q.y)}
+   return path.reverse();
+  }
+  for(const [dx,dy] of DIR){const x=p.x+dx,y=p.y+dy;
+   if(x<0||y<0||x>=n||y>=n||maze[y][x]||seen.has(key(x,y)))continue;
+   seen.add(key(x,y));prev.set(key(x,y),p);queue.push({x,y});
+  }
+ }
+ return [];
+}
+function generate(){
+ maze=Array.from({length:n},()=>Array(n).fill(1));
+ const stack=[[1,1]];maze[1][1]=0;
+ while(stack.length){
+  const [x,y]=stack[stack.length-1],opts=[];
+  for(const [dx,dy] of DIR){const xx=x+2*dx,yy=y+2*dy;if(xx>0&&yy>0&&xx<n-1&&yy<n-1&&maze[yy][xx])opts.push([dx,dy]);}
+  if(!opts.length){stack.pop();continue}
+  const [dx,dy]=opts[Math.floor(Math.random()*opts.length)];
+  maze[y+dy][x+dx]=0;maze[y+2*dy][x+2*dx]=0;stack.push([x+2*dx,y+2*dy]);
+ }
+ maze[n-2][n-2]=0;
+ player={x:1,y:1};trail=new Set([key(1,1)]);steps=0;elapsed=0;started=0;done=false;hideHint();E('overlay').classList.remove('open');
+ E('steps').textContent='0';E('timer').textContent='00:00';E('best').textContent=String(bfs(player,{x:n-2,y:n-2}).length-1);
+ clearInterval(clock);clock=null;draw();
+}
+function startClock(){
+ if(started)return;started=Date.now();
+ clock=setInterval(()=>{if(!done){E('timer').textContent=fmt(Date.now()-started)}},250);
+}
+function move(dx,dy){
+ if(done)return;
+ const x=player.x+dx,y=player.y+dy;
+ if(x<0||y<0||x>=n||y>=n||maze[y][x])return;
+ startClock();player={x,y};trail.add(key(x,y));steps++;E('steps').textContent=String(steps);
+ hideHint();draw();
+ if(x===n-2&&y===n-2){
+  done=true;elapsed=Date.now()-started;clearInterval(clock);E('timer').textContent=fmt(elapsed);
+  const optimal=Number(E('best').textContent);
+  let record=null;const slot='mini-maze-best-'+n;
+  try{record=JSON.parse(localStorage.getItem(slot));if(!record||steps<record.steps||(steps===record.steps&&elapsed<record.elapsed)){localStorage.setItem(slot,JSON.stringify({steps,elapsed}));record={steps,elapsed}}}catch(e){}
+  E('result').textContent='Пройдено за '+steps+' шагов и '+fmt(elapsed)+'. Кратчайший путь — '+optimal+' шагов.'+(record?' Лучший результат на этом уровне: '+record.steps+' шагов.':'');
+  E('overlay').classList.add('open');E('again').focus();
+ }
+}
+function hideHint(){hintPath=null;if(hintTimer){clearTimeout(hintTimer);hintTimer=null}}
+function hint(){if(done)return;hideHint();hintPath=bfs(player,{x:n-2,y:n-2});draw();hintTimer=setTimeout(()=>{hintPath=null;draw()},3000)}
+function rect(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function draw(){
+ if(!maze.length)return;
+ const size=canvas.width,cell=size/n;
+ ctx.clearRect(0,0,size,size);ctx.fillStyle='#101b29';ctx.fillRect(0,0,size,size);
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+  const xx=x*cell,yy=y*cell;
+  if(maze[y][x]){ctx.fillStyle=(x+y)%2?'#24354a':'#283a50';ctx.fillRect(xx,yy,cell+.4,cell+.4);}
+  else if(trail.has(key(x,y))){ctx.fillStyle='#334b61';ctx.fillRect(xx,yy,cell+.4,cell+.4)}
+ }
+ if(hintPath){ctx.fillStyle='rgba(131,240,203,.38)';for(const p of hintPath){ctx.beginPath();ctx.arc((p.x+.5)*cell,(p.y+.5)*cell,Math.max(2,cell*.17),0,Math.PI*2);ctx.fill()}}
+ const x=(n-1.5)*cell,y=(n-1.5)*cell;
+ ctx.shadowColor='#f7bf7f';ctx.shadowBlur=cell*.6;rect(x-cell*.31,y-cell*.31,cell*.62,cell*.62,cell*.2,'#f7bf7f');ctx.shadowBlur=0;
+ ctx.shadowColor='#83f0cb';ctx.shadowBlur=cell*.8;ctx.beginPath();ctx.fillStyle='#83f0cb';ctx.arc((player.x+.5)*cell,(player.y+.5)*cell,cell*.32,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ ctx.fillStyle='#124d42';ctx.beginPath();ctx.arc((player.x+.5)*cell,(player.y+.5)*cell,cell*.1,0,Math.PI*2);ctx.fill();
+}
+function resize(){
+ const dpr=Math.min(window.devicePixelRatio||1,3);
+ const width=Math.max(1,Math.floor(canvas.getBoundingClientRect().width*dpr));
+ if(canvas.width!==width||canvas.height!==width){canvas.width=width;canvas.height=width}draw();
+}
+for(const btn of document.querySelectorAll('[data-level]'))btn.addEventListener('click',()=>{
+ n=Number(btn.dataset.level);for(const other of document.querySelectorAll('[data-level]'))other.setAttribute('aria-pressed',String(other===btn));generate();
+});
+for(const btn of document.querySelectorAll('[data-dir]'))btn.addEventListener('click',()=>{const [x,y]=btn.dataset.dir.split(',').map(Number);move(x,y)});
+E('new').addEventListener('click',generate);E('again').addEventListener('click',generate);
+E('hint').addEventListener('click',hint);
+E('reset').addEventListener('click',()=>{player={x:1,y:1};trail=new Set([key(1,1)]);steps=0;started=0;done=false;E('steps').textContent='0';E('timer').textContent='00:00';clearInterval(clock);clock=null;hideHint();E('overlay').classList.remove('open');draw()});
+document.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;const map={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]};const dir=map[e.key];if(dir){e.preventDefault();move(...dir)}});
+let touch=null;
+canvas.addEventListener('pointerdown',e=>{touch={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointerup',e=>{if(!touch)return;const dx=e.clientX-touch.x,dy=e.clientY-touch.y;touch=null;
+ if(Math.max(Math.abs(dx),Math.abs(dy))>17){if(Math.abs(dx)>Math.abs(dy))move(Math.sign(dx),0);else move(0,Math.sign(dy));return}
+ const b=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-b.left)/b.width*n),y=Math.floor((e.clientY-b.top)/b.height*n);
+ if(Math.abs(x-player.x)+Math.abs(y-player.y)===1)move(x-player.x,y-player.y);
+});
+canvas.addEventListener('pointercancel',()=>touch=null);
+if('ResizeObserver' in window)new ResizeObserver(resize).observe(canvas);else window.addEventListener('resize',resize);
+generate();resize();
+})();
+</script>
+</body>
+</html>
