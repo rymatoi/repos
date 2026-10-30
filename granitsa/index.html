@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10151d"><meta name="description" content="Граница — научный атлас, парадоксы, теоремы, физика и космос. Изучай идеи, запускай эксперименты, сохраняй прогресс.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><title>Граница — атлас идей</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+<a class="brand" href="#home" aria-label="Главная"><span class="brand-mark">✳</span><span><strong>Граница</strong><small>АТЛАС ИДЕЙ</small></span></a>
+<div class="nav-title">ИССЛЕДУЙ</div>
+<nav id="sideNav" class="side-nav" aria-label="Разделы">
+<button data-route="home" class="active"><span class="nav-icon">⌂</span>Главная</button>
+<button data-route="paradox"><span class="nav-icon">◇</span>Парадоксы</button>
+<button data-route="math"><span class="nav-icon">∑</span>Математика</button>
+<button data-route="physics"><span class="nav-icon">◌</span>Законы природы</button>
+<button data-route="space"><span class="nav-icon">✦</span>Вселенная</button>
+</nav>
+<div class="nav-title space-top">ПРАКТИКА</div>
+<nav class="side-nav" aria-label="Практика"><button data-route="labs"><span class="nav-icon">⚗</span>Эксперименты</button><button data-route="saved"><span class="nav-icon">▤</span>Моя коллекция</button></nav>
+<div class="sidebar-foot"><span class="status-dot"></span> Открытый научный атлас <small>Без регистрации и платной подписки</small></div>
+</aside>
+<div class="content-wrap">
+<header class="topbar"><button class="mobile-brand" data-route="home"><span class="brand-mark">✳</span><b>Граница</b></button><span class="header-motto">Понимать мир — интереснее, чем просто знать факты.</span><div class="head-actions"><button id="searchOpen" class="icon-button" title="Поиск" aria-label="Открыть поиск">⌕</button><button id="profileBtn" class="profile-button" title="Профиль"><span id="profileInitial">1</span><span class="profile-name" id="profileName">Профиль 1</span><span class="chevron">⌄</span></button></div></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer"><span>ГРАНИЦА • 2026</span><span>Знания из открытых источников. Проверяй научные утверждения по первоисточникам.</span></footer>
+</div>
+</div>
+<nav class="bottom-nav" aria-label="Навигация"><button data-route="home"><span>⌂</span>Обзор</button><button data-route="paradox"><span>◇</span>Темы</button><button data-route="labs"><span>⚗</span>Опыты</button><button data-route="saved"><span>▤</span>Моё</button></nav>
+<dialog id="searchDialog" class="search-dialog"><div class="search-head"><input id="globalSearch" autocomplete="off" placeholder="Теорема, парадокс, антиматерия…" aria-label="Поиск по темам"><button id="closeSearch" aria-label="Закрыть">✕</button></div><div id="searchResults" class="search-results"></div><div class="search-note">Локальный каталог + поиск по русской Википедии. Для внешнего поиска нужен интернет.</div></dialog>
+<dialog id="profileDialog" class="profile-dialog"><div class="modal-title"><b>Ваши профили</b><button id="closeProfile" aria-label="Закрыть">✕</button></div><p>Прогресс каждого профиля хранится в этом браузере. Между телефонами он автоматически не синхронизируется.</p><div id="profileList"></div><div class="field"><label for="renameProfile">Имя выбранного профиля</label><input id="renameProfile" maxlength="22" placeholder="Имя"></div><button id="renameButton" class="btn primary full">Сохранить имя</button><div class="backup-actions"><button id="exportBtn" class="btn subtle">Экспорт прогресса</button><button id="importBtn" class="btn subtle">Импорт прогресса</button><input type="file" id="importFile" accept="application/json,.json" hidden></div><p class="hint">Импорт заменит локальные данные из файла. Для общего прогресса используйте экспорт и импорт вручную.</p></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="topics.js"></script><script src="app.js"></script>
+</body></html>
