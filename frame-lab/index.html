@@ -41,6 +41,23 @@
 .panel-section canvas#bayesHistory{height:96px;width:100%;max-height:none}
 .bayes-note{font-size:10px;line-height:1.5;color:#abc2c0;margin:9px 0 0}
 @media(orientation:landscape) and (max-height:430px){.view-foot{font-size:9px}.view-foot span{padding:3px 5px}}
+
+/* Separate, constantly visible geometry and Bayesian evidence indicators. */
+.detection-strip{display:flex;gap:6px;min-width:0;max-width:calc(100% - 84px);align-items:flex-start}
+.detector-badge{display:flex;align-items:center;gap:6px;min-width:0;background:#081b22e9;border:1px solid #39535a;border-radius:9px;padding:6px 8px;color:#a7b9bd;box-shadow:0 2px 12px #06121970}
+.detector-badge>span{font-size:9px;font-weight:750;letter-spacing:.06em;white-space:nowrap}
+.detector-badge strong{font-size:10px;font-weight:850;color:#d4e2db;white-space:nowrap;letter-spacing:0}
+.detector-badge small{font-size:10px;line-height:1;white-space:nowrap;color:#cfdfd7}
+.detector-badge[data-state="found"],.detector-badge[data-state="recovered"],.detector-badge[data-state="match"]{border-color:#699c7c;color:#d8f7c2}
+.detector-badge[data-state="found"] strong,.detector-badge[data-state="recovered"] strong,.detector-badge[data-state="match"] strong{color:#c4f49b}
+.detector-badge[data-state="search"],.detector-badge[data-state="no-measurement"],.detector-badge[data-state="mismatch"]{border-color:#bb8750}
+.detector-badge[data-state="search"] strong,.detector-badge[data-state="no-measurement"] strong,.detector-badge[data-state="mismatch"] strong{color:#fbc57b}
+#trackingPill{background:transparent;border:0;border-radius:0;padding:0;text-shadow:none}
+.bayes-summary{font-size:10px;line-height:1.4;color:#adbfba;margin:0 0 8px}
+#bayesPanelStatus{font-size:10px}
+@media(max-width:840px){.detection-strip{gap:4px;max-width:calc(100% - 70px)}.detector-badge{padding:4px 6px;gap:4px;border-radius:6px}.detector-badge>span{font-size:8px}.detector-badge strong{font-size:9px}.detector-badge small{font-size:9px}}
+@media(max-width:600px){#resolution{display:none}.detection-strip{max-width:100%;flex-wrap:wrap}.detector-badge{max-width:100%}}
+@media(max-height:430px) and (orientation:landscape){.detector-badge{padding:3px 5px}.view-head{align-items:flex-start}}
 </style>
 </head>
 <body>
@@ -53,7 +70,13 @@
     <section class="screen-column">
       <div class="screen" id="screen">
         <canvas id="stage" aria-label="Нарисуй рамку вокруг бытового предмета на видео" tabindex="0"></canvas>
-        <div class="view-head"><div id="trackingPill" class="tracking-pill">● ВЫБЕРИ ИСТОЧНИК</div><span id="resolution">— × —</span></div>
+        <div class="view-head">
+          <div class="detection-strip" aria-label="Два отдельных индикатора оценки предмета">
+            <div class="detector-badge" id="geometryBadge" data-state="idle"><span>ГЕОМЕТРИЯ</span><strong id="trackingPill">НЕ ВЫБРАН</strong></div>
+            <div class="detector-badge" id="bayesBadge" data-state="idle"><span>БАЙЕС · КОНТУРЫ</span><strong id="bayesDetection">НЕТ МОДЕЛИ</strong><small id="bayesBadgeValue">—</small></div>
+          </div>
+          <span id="resolution">— × —</span>
+        </div>
         <div id="empty" class="empty">
           <div class="empty-ring">◎</div>
           <h1>Выдели предмет.<br><i>Посмотри, что увидит алгоритм.</i></h1>
@@ -72,15 +95,16 @@
       <div class="panel-top"><div><span class="eyebrow">СТАТИСТИЧЕСКИЙ АНАЛИЗ</span><h2>Внутри кадра</h2></div><button id="closePanel" class="small-btn close-panel" aria-label="Закрыть анализ">×</button></div>
       <div class="status-card"><div class="small-label">ВЫДЕЛЕННЫЙ ПРЕДМЕТ <span id="trackingStatus">НЕ ВЫБРАН</span></div><div class="status-line"><strong id="trackTitle">Выдели прямоугольник</strong><span id="trackScore">—</span></div><p id="trackDescription">Выдели границы книги, пульта или другого предмета с характерными точками.</p></div>
       <div class="panel-section probability-section" id="bayesSection" aria-label="Байесовская оценка">
+        <div class="small-label">СТАТУС БАЙЕСОВСКОГО КАНАЛА <span id="bayesPanelStatus">НЕТ МОДЕЛИ</span></div>
         <div class="section-title"><span>ОЦЕНКА ПО ПОСЛЕДОВАТЕЛЬНОСТИ КАДРОВ</span><strong>Байес + β</strong></div>
-        <div class="bayes-level"><strong id="bayesPercent">—</strong><span id="bayesObservation">Выбери предмет</span></div>
+        <div class="bayes-level"><strong id="bayesPercent">—</strong><span id="bayesObservation">Выбери предмет</span></div><p class="bayes-summary" id="bayesMeaning">Число ниже — оценка модели; обнаружение без свежего измерения не подтверждается.</p>
         <div class="bayes-meter"><div id="bayesFill"></div></div>
         <canvas id="bayesHistory" width="320" height="96" aria-label="График условной вероятности по кадрам"></canvas>
         <div class="value-pair"><span>Логарифм отношения правдоподобий</span><b id="bayesLogLR">—</b></div>
         <div class="value-pair"><span>Контуры предмета: α / β</span><b id="bayesObjectFit">—</b></div>
         <div class="value-pair"><span>Окружающая область: α / β</span><b id="bayesBackgroundFit">—</b></div>
         <div class="value-pair"><span>Отобранные измерения</span><b id="bayesSampleCounts">—</b></div>
-        <p class="note bayes-note">Это <b>условная оценка соответствия контурной статистики</b>, а не достоверная вероятность наличия предмета. Байесовский блок не управляет положением рамки. При потере измерения не подменяются последним изображением.</p>
+        <p class="note bayes-note">Это <b>условная оценка соответствия контурной статистики</b>, а не калиброванная вероятность наличия предмета. Байесовский канал <b>сам не ищет координаты</b>: для измерения ему нужна актуальная область от геометрии. Если геометрия потеряла предмет, в байесовском канале отображается «НЕТ ИЗМЕРЕНИЯ», даже когда прошлый прогноз остаётся высоким.</p>
       </div>
       <div class="panel-section"><div class="section-title"><span>ПРЕДОБРАБОТКА</span><strong>Контуры Собеля</strong></div><canvas id="edges" width="320" height="180"></canvas><div class="value-pair"><span>Средний градиент</span><b id="mean">—</b></div><div class="value-pair"><span>Резкость</span><b id="sharpness">—</b></div></div>
       <div class="panel-section"><div class="section-title"><span>РАСПРЕДЕЛЕНИЕ</span><strong>Бета-модель</strong></div><canvas id="hist" width="320" height="98"></canvas><div class="params"><div>α<b id="alpha">—</b></div><div>β<b id="beta">—</b></div><div>σ²<b id="variance">—</b></div></div><div class="value-pair"><span>Порог Отсу</span><b id="threshold">—</b></div></div>
@@ -785,6 +809,39 @@ const s={mode:null,stream:null,url:null,facing:'environment',ready:false,frame:n
   fps:0,last:0,lastStat:0,demostart:0,present:{x:0,y:0,w:0,h:0},toastTimer:null};
 
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(s.toastTimer);s.toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3100);}
+
+/** A Bayesian contour score is not an independent object localizer. */
+function describeDetectorIndicators(geometry,belief){
+ const geometryState=!geometry?'idle':geometry.found?(geometry.recovered?'recovered':'found'):'search';
+ const geometryText={idle:'НЕ ВЫБРАН',found:'НАЙДЕН',recovered:'ВОССТАНОВЛЕН',search:'ИЩЕТ'}[geometryState];
+ let bayesState='idle',bayesText='НЕТ МОДЕЛИ';
+ if(belief){
+  if(!belief.valid){bayesState='unavailable';bayesText='НЕТ МОДЕЛИ';}
+  else if(!geometry?.found || !belief.observed || !Number.isFinite(belief.logEvidence)){
+   bayesState='no-measurement';bayesText='НЕТ ИЗМЕРЕНИЯ';
+  }else if(belief.p>=.5){bayesState='match';bayesText='СХОДНО';}
+  else{bayesState='mismatch';bayesText='НЕ СХОДНО';}
+ }
+ const probability=belief&&Number.isFinite(belief.p)?Math.round(belief.p*100):null;
+ return {geometry:{state:geometryState,text:geometryText},bayes:{state:bayesState,text:bayesText,probability,
+  liveProbability:bayesState==='match'||bayesState==='mismatch'?probability:null}};
+}
+function paintDetectionStatuses(){
+ const d=describeDetectorIndicators(s.result,s.bayes);
+ $('geometryBadge').dataset.state=d.geometry.state;
+ $('trackingPill').textContent=d.geometry.text;
+ $('bayesBadge').dataset.state=d.bayes.state;
+ $('bayesDetection').textContent=d.bayes.text;
+ $('bayesPanelStatus').textContent=d.bayes.text;
+ $('bayesBadgeValue').textContent=d.bayes.liveProbability===null?'':d.bayes.liveProbability+'%';
+ $('bayesInline').textContent=d.bayes.liveProbability===null?'нет данных':d.bayes.liveProbability+'%';
+ const prob=d.bayes.probability;
+ $('bayesMeaning').textContent=!s.bayes?'Выбери предмет, чтобы построить контурную модель.':
+  d.bayes.state==='unavailable'?'Контуры не позволяют оценить бета-модель.':
+  d.bayes.state==='no-measurement'?'Нет свежего измерения: '+(prob===null?'—':prob+'%')+' — это сохранённый байесовский прогноз, а НЕ обнаружение предмета.':
+  (d.bayes.state==='match'?'Байесовская модель считает контуры похожими':'Контуры не подтверждают сходство')+
+   '. Оценка модельная, не откалибрована на реальных видео.';
+}
 function resetProbabilityUI(){
   $('bayesPercent').textContent='—';$('bayesInline').textContent='—';
   $('bayesObservation').textContent='Выбери предмет';$('bayesLogLR').textContent='—';
@@ -819,9 +876,10 @@ function probabilityDiagnostics(stats){
  $('bayesFill').style.width=prob===null?'0%':`${prob}%`;
  $('bayesFill').style.background=prob>=55?'#c4f49b':'#fbc57b';
  redrawBayesHistory(b);
+ paintDetectionStatuses();
 }
-function clearSelection(){s.tracker=null;s.result=null;s.bayes=null;resetProbabilityUI();s.trail=[];s.selector=null;$('trackingStatus').textContent='НЕ ВЫБРАН';$('trackingStatus').style.color='';$('trackTitle').textContent='Выдели прямоугольник';$('trackDescription').textContent='Обведи предмет с деталями — надписями, рисунком или границами.';$('trackScore').textContent='—';$('coords').textContent='X — · Y —';$('confidence').textContent='—';$('instruction').classList.toggle('hidden',!s.mode);if(s.mode)$('trackingPill').textContent='● ОБВЕДИ ПРЕДМЕТ';}
-function status(mode){s.mode=mode;const label={camera:'КАМЕРА · ЛОКАЛЬНО',demo:'ДВИЖУЩИЙСЯ ПРИМЕР',file:'ЗАГРУЖЕННОЕ ВИДЕО'};$('sourcePill').textContent=mode?'● '+label[mode]:'● ИСТОЧНИК НЕ ВЫБРАН';$('empty').classList.toggle('hidden',!!mode);$('trackingPill').textContent=mode?'● ОБВЕДИ ПРЕДМЕТ':'● ВЫБЕРИ ИСТОЧНИК';$('instruction').classList.toggle('hidden',!mode);$('resolution').textContent='— × —';}
+function clearSelection(){s.tracker=null;s.result=null;s.bayes=null;resetProbabilityUI();s.trail=[];s.selector=null;$('trackingStatus').textContent='НЕ ВЫБРАН';$('trackingStatus').style.color='';$('trackTitle').textContent='Выдели прямоугольник';$('trackDescription').textContent='Обведи предмет с деталями — надписями, рисунком или границами.';$('trackScore').textContent='—';$('coords').textContent='X — · Y —';$('confidence').textContent='—';$('instruction').classList.toggle('hidden',!s.mode);paintDetectionStatuses();}
+function status(mode){s.mode=mode;const label={camera:'КАМЕРА · ЛОКАЛЬНО',demo:'ДВИЖУЩИЙСЯ ПРИМЕР',file:'ЗАГРУЖЕННОЕ ВИДЕО'};$('sourcePill').textContent=mode?'● '+label[mode]:'● ИСТОЧНИК НЕ ВЫБРАН';$('empty').classList.toggle('hidden',!!mode);$('trackingPill').textContent=mode?'● ОБВЕДИ ПРЕДМЕТ':'● ВЫБЕРИ ИСТОЧНИК';$('instruction').classList.toggle('hidden',!mode);$('resolution').textContent='— × —';paintDetectionStatuses();}
 function cleanup(){if(s.stream){s.stream.getTracks().forEach(t=>t.stop());s.stream=null;}video.pause();video.srcObject=null;video.removeAttribute('src');video.load();if(s.url){URL.revokeObjectURL(s.url);s.url=null;}}
 function stop(){cleanup();s.ready=false;s.frame=null;status(null);clearSelection();paintIdle();$('rate').textContent='—';}
 async function startCamera(){if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){toast('Для камеры нужен защищённый адрес HTTPS или localhost. Нажми «Пример».');return;}cleanup();clearSelection();try{const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:s.facing},width:{ideal:1280},height:{ideal:720}}});s.stream=stream;video.srcObject=stream;video.muted=true;video.playsInline=true;await video.play();status('camera');s.ready=true;toast('Камера включена. Обведи предмет рамкой пальцем.');}catch(err){cleanup();s.ready=false;status(null);toast(err?.name==='NotAllowedError'?'Разреши доступ к камере в Safari/браузере.':'Не удалось открыть камеру. Можно загрузить видео или открыть пример.');}}
@@ -885,6 +943,7 @@ function updateTracking(){
   }
   $('confidence').textContent=result.found?`${Math.round(result.confidence*100)}%`:'—';
   $('instruction').classList.add('hidden');
+  paintDetectionStatuses();
 }
 function drawSource(src){const W=stage.clientWidth,H=stage.clientHeight;ctx.fillStyle='#081b23';ctx.fillRect(0,0,W,H);const factor=Math.min(W/src.W,H/src.H);const p={x:(W-src.W*factor)/2,y:(H-src.H*factor)/2,w:src.W*factor,h:src.H*factor};s.present=p;ctx.drawImage(src.image,p.x,p.y,p.w,p.h);
   const tx=x=>p.x+x*p.w/s.W,ty=y=>p.y+y*p.h/s.H;
@@ -913,7 +972,7 @@ function onPointerDown(e){if(!s.ready||!s.frame)return;const p=pointerPos(e);if(
 function onPointerMove(e){if(!s.selector||s.selector.id!==e.pointerId)return;const p=pointerPos(e);const q=s.present;s.selector.x1=Math.max(q.x,Math.min(q.x+q.w,p.x));s.selector.y1=Math.max(q.y,Math.min(q.y+q.h,p.y));const src=source();if(src)drawSource(src);}
 function onPointerUp(e){if(!s.selector||s.selector.id!==e.pointerId)return;const sel=s.selector;s.selector=null;const start=framePos({x:sel.x0,y:sel.y0}),end=framePos({x:sel.x1,y:sel.y1});let box={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(start.x-end.x),h:Math.abs(start.y-end.y)};const tap=Math.hypot(sel.x1-sel.x0,sel.y1-sel.y0)<12;
   if(tap){box={x:start.x-36,y:start.y-27,w:72,h:54};}box.x=Math.max(0,Math.min(s.W-12,box.x));box.y=Math.max(0,Math.min(s.H-12,box.y));box.w=Math.min(box.w,s.W-box.x);box.h=Math.min(box.h,s.H-box.y);
-  const tracker=createTracker(s.frame,s.W,s.H,box);if(tracker.error){toast(tracker.error);return;}s.bayes=createBetaBelief(analyzeFrame(s.frame,s.W,s.H).edgePixels,s.W,s.H,tracker.polygon);redrawBayesHistory(s.bayes);s.tracker=tracker;s.result={found:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:1,confidence:1};s.trail=[];$('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';$('trackTitle').textContent='Предмет выбран';$('trackDescription').textContent='Теперь медленно обходи предмет, удерживая его в кадре';$('trackScore').textContent=`${tracker.points.length} точек`; $('confidence').textContent='—';$('instruction').classList.add('hidden');$('trackingPill').textContent='● ОБЪЕКТ В КАДРЕ';toast(`Запомнил ${tracker.points.length} характерных точек. Медленно обходи предмет.`);}
+  const tracker=createTracker(s.frame,s.W,s.H,box);if(tracker.error){toast(tracker.error);return;}s.bayes=createBetaBelief(analyzeFrame(s.frame,s.W,s.H).edgePixels,s.W,s.H,tracker.polygon);redrawBayesHistory(s.bayes);s.tracker=tracker;s.result={found:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:1,confidence:1};s.trail=[];$('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';$('trackTitle').textContent='Предмет выбран';$('trackDescription').textContent='Теперь медленно обходи предмет, удерживая его в кадре';$('trackScore').textContent=`${tracker.points.length} точек`; $('confidence').textContent='—';$('instruction').classList.add('hidden');$('trackingPill').textContent='● ОБЪЕКТ В КАДРЕ';paintDetectionStatuses();toast(`Запомнил ${tracker.points.length} характерных точек. Медленно обходи предмет.`);}
 
 $('cameraBtn').addEventListener('click',startCamera);$('bigCamera').addEventListener('click',startCamera);$('demoBtn').addEventListener('click',startDemo);$('bigDemo').addEventListener('click',startDemo);$('stopBtn').addEventListener('click',stop);$('resetBtn').addEventListener('click',()=>{clearSelection();if(s.mode)toast('Выдели новый предмет рамкой.');});$('flipBtn').addEventListener('click',()=>{s.facing=s.facing==='environment'?'user':'environment';startCamera();});$('fileBtn').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',async e=>{await startFile(e.target.files?.[0]);e.target.value='';});
 stage.addEventListener('pointerdown',onPointerDown);stage.addEventListener('pointermove',onPointerMove);stage.addEventListener('pointerup',onPointerUp);stage.addEventListener('pointercancel',()=>{s.selector=null;});
