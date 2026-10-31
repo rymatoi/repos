@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#09141a">
+  <meta name="description" content="Образовательная лаборатория компьютерного зрения: камера, цветные метки и статистика кадров в реальном времени.">
+  <title>Frame Lab — лаборатория компьютерного зрения</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2309141a'/%3E%3Ccircle cx='32' cy='32' r='18' stroke='%23b7f18c' fill='none' stroke-width='5'/%3E%3C/svg%3E">
+  <style>
+:root{color-scheme:dark;--bg:#08151a;--panel:#0e1e24;--muted:#8ca2a9;--line:rgba(210,237,220,.105);--lime:#b7f18c;--white:#eff9f4;--orange:#ffc488;--font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:var(--font);font-synthesis:none}body{overflow:hidden}button{font:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible,canvas:focus-visible{outline:3px solid var(--lime);outline-offset:3px}.hidden{display:none!important}
+.app-shell{display:flex;flex-direction:column;height:100dvh;min-height:430px;background:radial-gradient(ellipse at 76% -12%,rgba(95,148,139,.07),transparent 55%),var(--bg)}
+.topbar{height:72px;flex-shrink:0;padding:0 30px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px}.brand-symbol{width:32px;height:32px;display:grid;grid-template-columns:1fr 1fr;gap:9px}.brand-symbol span{display:block;width:10px;height:10px;border:2px solid var(--lime)}.brand-symbol span:nth-child(1){border-right:0;border-bottom:0}.brand-symbol span:nth-child(2){border-left:0;border-bottom:0;justify-self:end}.brand-symbol span:nth-child(3){border-top:0;border-right:0;align-self:end}.brand-symbol span:nth-child(4){border-left:0;border-top:0;justify-self:end;align-self:end}.brand-copy{display:flex;flex-direction:column;gap:3px}.brand-copy b{font-size:19px;letter-spacing:.09em;font-weight:850}.brand-copy b span{color:var(--lime)}.brand-copy small{font-size:8px;color:#8b9da0;letter-spacing:.23em;font-weight:750}.header-label{color:#b9ccca;font-weight:750;font-size:10px;letter-spacing:.16em;display:flex;align-items:center;gap:10px;margin-left:auto;margin-right:30px}.live-indicator{width:7px;height:7px;display:inline-block;background:#687b7a;border-radius:50%;box-shadow:0 0 0 4px rgba(129,164,154,.09)}.live-indicator.active{background:var(--lime);box-shadow:0 0 0 5px rgba(169,241,131,.11),0 0 10px rgba(169,241,131,.5)}.header-info{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:#b1c5c3;display:grid;place-items:center}.header-info svg{width:19px;height:19px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 328px;gap:0;min-height:0;flex:1}.viewport-section{min-width:0;min-height:0;padding:19px 20px 18px 24px;display:flex;flex-direction:column;gap:13px}.viewport{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:12px;background:radial-gradient(ellipse at 49% 45%,#1f343b 0%,#101e25 36%,#071117 100%);border:1px solid rgba(214,237,224,.12);box-shadow:0 22px 54px rgba(0,0,0,.19)}.viewport:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(0deg,transparent 96%,rgba(172,228,224,.035) 100%),linear-gradient(90deg,transparent 96%,rgba(172,228,224,.035) 100%);background-size:38px 38px;mask-image:linear-gradient(to bottom,transparent,black 25%,black 80%,transparent)}#stageCanvas{display:block;width:100%;height:100%;touch-action:manipulation;position:absolute;inset:0;z-index:1;cursor:crosshair}.stage-shade{position:absolute;z-index:2;pointer-events:none;inset:0;background:linear-gradient(180deg,rgba(4,16,21,.55),transparent 21%,transparent 70%,rgba(4,16,21,.78))}.stage-top,.stage-footer{z-index:4;pointer-events:none;position:absolute;left:22px;right:22px;display:flex;align-items:center;justify-content:space-between}.stage-top{top:22px}.stage-footer{bottom:18px;align-items:flex-end}.mode-tag,.frame-tag{font-size:10px;letter-spacing:.12em;font-weight:800}.mode-tag{display:flex;align-items:center;gap:9px;background:rgba(5,16,21,.65);padding:9px 12px;border:1px solid rgba(220,248,238,.09);border-radius:5px;backdrop-filter:blur(7px)}.mode-dot{width:7px;height:7px;background:#71838a;border-radius:50%}.mode-dot.active{background:var(--lime)}.frame-tag{color:#b3bec4;font-size:9px}.mini-caption{font-weight:800;color:#8aa3a7;font-size:9px;letter-spacing:.12em}.coords,.stage-foot-right{display:flex;gap:6px;flex-direction:column}.coords strong,.stage-foot-right strong{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:19px;letter-spacing:.02em;font-weight:650}.stage-foot-right{text-align:right}.stage-foot-right small{font-size:12px;color:var(--muted)}
+.empty-state{position:absolute;z-index:5;top:50%;left:50%;width:min(500px,80%);transform:translate(-50%,-50%);text-align:center}.empty-mark{margin:0 auto 10px;width:88px;height:88px;border:1px solid rgba(211,240,228,.14);border-radius:20px;display:grid;place-items:center;color:var(--lime);background:rgba(170,233,191,.045)}.empty-mark svg{width:70px}.empty-state h1{font-size:clamp(23px,2.4vw,38px);line-height:1.16;margin:11px 0;font-weight:750;letter-spacing:-.045em}.empty-state h1 em{font-style:normal;color:var(--lime)}.empty-state p{font-size:13px;line-height:1.65;max-width:370px;margin:15px auto 20px;color:#a5b8b9}.empty-actions{display:flex;justify-content:center;gap:10px}.button{border:0;display:inline-flex;align-items:center;justify-content:center;gap:14px;padding:12px 19px;border-radius:6px;font-weight:700;font-size:12px;white-space:nowrap}.button-primary{background:var(--lime);color:#102016}.button-primary:hover{background:#d1ffad}.button-ghost{background:rgba(216,240,232,.075);border:1px solid rgba(215,237,228,.13);color:#d9e7e3}.button-ghost:hover{background:rgba(216,240,232,.14)}.hint-pill{position:absolute;z-index:5;top:74px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;border-radius:20px;padding:9px 14px;background:rgba(5,17,20,.8);border:1px solid rgba(189,237,179,.21);color:#e4f6e4;display:flex;align-items:center;gap:8px;backdrop-filter:blur(7px)}.hint-pulse{height:7px;width:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime)}
+.controls{height:52px;display:flex;align-items:center;justify-content:space-between;gap:8px}.control-group{display:flex;align-items:center;gap:7px}.control-button,.square-button{border:1px solid rgba(186,217,210,.13);height:42px;border-radius:7px;background:#13272d;color:#d9ebea;font-size:12px;font-weight:700;white-space:nowrap}.control-button{padding:0 15px;display:flex;align-items:center;gap:9px}.control-button:hover,.square-button:hover{border-color:#5f8f75;background:#1b3538}.control-button.accent{background:#b7f18c;border-color:#b7f18c;color:#132319}.control-button.accent:hover{background:#d0ffa9}.ctrl-icon{font-size:15px;font-family:system-ui,sans-serif}.control-divider{margin-left:auto;width:1px;height:24px;background:var(--line)}.square-button{width:43px;font-size:20px;font-family:system-ui,sans-serif}.square-button:disabled{opacity:.3;cursor:not-allowed}
+.side-panel{min-height:0;overflow-y:auto;border-left:1px solid var(--line);padding:24px 21px 12px;background:linear-gradient(140deg,#0d1e23,#0b1a20)}.panel-heading,.block-heading,.card-header{display:flex;align-items:center;justify-content:space-between}.panel-heading{margin-bottom:22px}.section-kicker,.small-caps{font-size:9px;letter-spacing:.18em;color:#87a39f;font-weight:850}.panel-heading h2{margin:5px 0 0;font-size:23px;font-weight:700;letter-spacing:-.04em}.small-version{font-size:9px;color:#6e8887;font-weight:750;letter-spacing:.09em}.detection-card{padding:16px;border:1px solid rgba(181,227,164,.17);border-radius:9px;background:linear-gradient(126deg,rgba(159,218,137,.07),rgba(95,144,129,.025))}.status-label{color:#a3b5b1;font-weight:800;font-size:9px;letter-spacing:.1em}.status-label.tracking{color:var(--lime)}.status-label.lost{color:#f5bc83}.marker-content{display:flex;align-items:center;gap:12px;margin:16px 0}.marker-swatch{width:45px;height:45px;border-radius:9px;background:rgba(192,224,210,.06);border:1px dashed rgba(188,226,203,.24);display:grid;place-items:center;color:#9eb9b0;font-size:24px;font-weight:250;flex-shrink:0}.marker-details{display:flex;flex-direction:column;gap:5px;min-width:0}.marker-details strong{font-size:14px}.marker-details small{font-size:10px;line-height:1.4;color:#97aeaa}.detail-split{display:flex;border-top:1px solid var(--line);padding-top:13px;gap:15px}.detail-split>div{flex:1;display:flex;flex-direction:column;gap:4px}.detail-split>div span{font-size:9px;letter-spacing:.13em;color:#88a19f;font-weight:700}.detail-split strong{font-size:16px;font-family:ui-monospace,Consolas,monospace}.detail-split small{font-size:10px;color:var(--muted);font-weight:400}
+.analysis-block{margin-top:23px}.block-heading{margin-bottom:12px}.block-heading h3{font-size:14px;margin:4px 0 0;font-weight:650}.method-tag{padding:4px 6px;border:1px solid var(--line);border-radius:4px;color:#a9c9ba;font-size:11px;font-family:ui-monospace,monospace}.edges-canvas{display:block;background:#09171c;width:100%;aspect-ratio:16/9;border-radius:6px;border:1px solid rgba(221,243,231,.06);object-fit:contain}.data-row{display:flex;justify-content:space-between;gap:10px;font-size:10px;margin-top:12px;color:#91aaa9}.data-row strong{color:#e5f6ed;font:600 11px ui-monospace,monospace}.histogram-block{margin-top:21px}.hist-canvas{display:block;width:100%;height:74px;border:1px solid rgba(220,243,231,.07);background:#09171c;border-radius:6px}.params-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.params-row>div{border:1px solid var(--line);padding:7px 5px;color:#88a49e;font-size:11px;border-radius:4px;text-align:center}.params-row strong{display:block;color:#d9ebe2;font:600 12px ui-monospace,monospace;margin-top:4px}.side-note{display:flex;gap:9px;border-top:1px solid var(--line);padding:16px 0 5px;margin-top:17px}.note-icon{display:grid;place-items:center;flex-shrink:0;width:16px;height:16px;border:1px solid #638d86;border-radius:50%;color:#a1c7ad;font-size:11px}.side-note p{font-size:10px;line-height:1.55;margin:0;color:#759390}.bottombar{height:39px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);color:#779294;font-size:10px;padding:0 30px;gap:10px}.bottombar>div{display:flex;align-items:center;gap:8px}.bottombar>span{font-size:9px;letter-spacing:.14em;font-weight:750}.footer-dot{height:6px;width:6px;border-radius:50%;background:var(--lime)}
+.toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(12px);background:#294a45;border:1px solid #799b7a;color:#f4fff6;padding:11px 15px;border-radius:7px;box-shadow:0 20px 50px #0008;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:min(450px,90vw);text-align:center}.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}.modal-overlay{position:fixed;inset:0;z-index:40;background:#050d11dd;backdrop-filter:blur(7px);display:grid;place-items:center;padding:18px}.modal{background:#13282d;border:1px solid #35514e;border-radius:12px;width:min(500px,100%);padding:27px 29px;max-height:95dvh;overflow:auto;position:relative;box-shadow:0 50px 100px #0008}.modal h2{margin:8px 0 15px;font-size:25px}.modal ol{padding-left:19px;font-size:13px;line-height:1.65;color:#c8ddcf}.modal li{margin-bottom:9px}.modal p{color:#96b8ac;font-size:12px;line-height:1.55}.close-modal{position:absolute;right:20px;top:16px;font-size:23px;border:0;background:transparent;color:#b8d3c5}.rotate-overlay{display:none;position:fixed;inset:0;z-index:30;background:#07161ded;backdrop-filter:blur(12px);place-items:center;padding:24px}.rotate-panel{text-align:center;max-width:320px}.rotate-panel h2{font-size:25px}.rotate-panel p{font-size:13px;line-height:1.5;color:#a4b6b2}.rotate-icon{position:relative;font-size:65px;color:var(--lime);transform:rotate(-45deg)}.rotate-icon span{font-size:26px;position:absolute;bottom:0;right:37%}#sourceVideo{position:absolute;left:-9999px;top:-9999px;width:2px;height:2px;opacity:0;pointer-events:none}
+@media (max-height:780px) and (min-width:850px){.topbar{height:58px}.viewport-section{padding:12px 15px 11px 16px;gap:7px}.side-panel{padding:15px 16px 9px}.panel-heading{margin-bottom:13px}.analysis-block{margin-top:13px}.block-heading{margin-bottom:7px}.edges-canvas{max-height:155px}.histogram-block{margin-top:12px}.hist-canvas{height:50px}.side-note{margin-top:10px;padding-top:9px}.side-note p{font-size:9px}.detection-card{padding:12px}.marker-content{margin:8px 0}.bottombar{height:30px}}
+@media (max-width:950px) and (orientation:landscape){.workspace{grid-template-columns:minmax(0,1fr) 216px}.topbar{height:43px;padding:0 13px}.brand-symbol{width:23px;height:23px;gap:6px}.brand-symbol span{width:8px;height:8px;border-width:1.5px}.brand-copy b{font-size:13px}.brand-copy small{display:none}.header-label{font-size:8px;margin-right:12px;letter-spacing:.09em}.header-info{width:28px;height:28px}.viewport-section{padding:7px;gap:5px}.viewport{border-radius:6px}.stage-top,.stage-footer{left:10px;right:10px}.stage-top{top:9px}.stage-footer{bottom:7px}.mode-tag{padding:6px 7px;font-size:8px}.frame-tag{font-size:8px}.mini-caption{font-size:7px}.coords strong,.stage-foot-right strong{font-size:12px}.controls{height:38px;gap:5px}.control-group{gap:4px}.control-button{height:32px;padding:0 8px;font-size:10px;gap:5px}.ctrl-icon{font-size:11px}.square-button{height:32px;width:31px;font-size:16px}.side-panel{padding:9px 10px 6px}.panel-heading{margin-bottom:7px}.panel-heading h2{font-size:15px;margin-top:2px}.small-version{display:none}.section-kicker,.small-caps{font-size:7px}.detection-card{padding:8px}.marker-content{margin:7px 0}.marker-swatch{width:27px;height:27px;border-radius:5px;font-size:15px}.marker-details strong{font-size:10px}.marker-details small{font-size:8px}.detail-split{padding-top:6px}.detail-split>div span{font-size:7px}.detail-split strong{font-size:11px}.analysis-block{margin-top:8px}.block-heading{margin-bottom:6px}.block-heading h3{font-size:10px;margin:2px 0 0}.method-tag{font-size:9px;padding:2px 4px}.edges-canvas{height:65px;width:100%;object-fit:cover}.data-row{margin-top:5px;font-size:8px}.data-row strong{font-size:9px}.histogram-block{margin-top:7px}.hist-canvas{height:32px}.params-row{gap:3px;margin-top:5px}.params-row>div{font-size:9px;padding:3px 2px}.params-row strong{font-size:9px;margin-top:2px}.side-note{margin-top:7px;padding:7px 0}.side-note p{font-size:8px;line-height:1.3}.bottombar{height:20px;padding:0 12px;font-size:8px}.bottombar>span{display:none}.empty-mark{width:42px;height:42px;border-radius:10px}.empty-mark svg{width:40px}.empty-state{width:92%}.empty-state h1{font-size:18px;margin:5px 0}.empty-state p{font-size:10px;line-height:1.3;margin:6px auto}.empty-actions .button{font-size:10px;padding:7px 8px}.hint-pill{top:40px;font-size:9px;padding:6px}.toast{bottom:38px}}
+@media (max-width:680px) and (orientation:portrait){.rotate-overlay:not(.dismissed){display:grid}.workspace{grid-template-columns:1fr}.app-shell{height:100dvh;min-height:0}.topbar{height:56px;padding:0 14px}.brand-copy b{font-size:15px}.brand-copy small{font-size:7px}.header-label{font-size:8px;margin-right:8px}.viewport-section{min-height:360px;height:57dvh;padding:10px}.side-panel{overflow:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.panel-heading{grid-column:1/-1;margin:0}.detection-card{grid-row:span 2;padding:10px}.analysis-block{margin:0}.histogram-block,.side-note{display:none}.edges-canvas{height:92px}.controls{gap:4px}.control-button{padding:0 9px;height:36px;font-size:10px}.control-button .ctrl-icon{display:none}.square-button{height:36px;width:31px}.bottombar{display:none}.empty-state{width:92%}.empty-state h1{font-size:23px}.empty-state p{font-size:12px}.empty-actions .button{padding:9px;font-size:11px}.coords strong,.stage-foot-right strong{font-size:14px}}
+@media (max-width:500px) and (orientation:landscape){.workspace{grid-template-columns:minmax(0,1fr) 160px}.side-panel{padding:7px}.edges-canvas{height:50px}.side-note,.histogram-block{display:none}.control-button{padding:0 6px}.control-button .ctrl-icon{display:none}.square-button{width:27px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-symbol" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="brand-copy"><b>FRAME<span>LAB</span></b><small>ВИЗУАЛЬНАЯ ЛАБОРАТОРИЯ</small></div>
+      </div>
+      <div class="header-label"><span class="live-indicator" id="statusLamp"></span><span id="sourceLabel">ИСТОЧНИК НЕ ВЫБРАН</span></div>
+      <button class="header-info" id="helpBtn" type="button" title="Инструкция" aria-label="Как пользоваться"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.7 2.7 0 1 1 4.4 2.1c-.8.7-1.9 1.3-1.9 2.7M12 17.3h.01" stroke-linecap="round"/></svg></button>
+    </header>
+
+    <main class="workspace">
+      <section class="viewport-section" aria-label="Камера и интерактивная сцена">
+        <div class="viewport" id="viewport">
+          <canvas id="stageCanvas" aria-label="Изображение с камеры. Коснитесь цветной метки, чтобы выделить её." tabindex="0"></canvas>
+          <div class="stage-shade"></div>
+          <div class="stage-top">
+            <div class="mode-tag"><span id="modeDot" class="mode-dot"></span><span id="modeText">ГОТОВ К РАБОТЕ</span></div>
+            <div class="frame-tag" id="frameSize">— × —</div>
+          </div>
+          <div class="empty-state" id="emptyState">
+            <div class="empty-mark"><svg viewBox="0 0 96 96" fill="none"><rect x="13" y="25" width="70" height="47" rx="10" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="48.5" r="15.5" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="48.5" r="6" fill="currentColor" opacity=".35"/><path d="M29 25l5-8h29l5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <h1>Изображение оживает<br><em>в реальном времени.</em></h1>
+            <p>Включи камеру и коснись яркой цветной метки на предмете. Или сначала попробуй демонстрацию.</p>
+            <div class="empty-actions"><button class="button button-primary" id="startCenter" type="button">Включить камеру <span>↗</span></button><button class="button button-ghost" id="demoCenter" type="button">Посмотреть пример</button></div>
+          </div>
+          <div class="hint-pill hidden" id="hintPill"><span class="hint-pulse"></span><span id="hintText">Нажми на цветную метку в кадре</span></div>
+          <div class="stage-footer">
+            <div class="coords"><span class="mini-caption">ПОЛОЖЕНИЕ МЕТКИ</span><strong id="coordinates">X — &nbsp; Y —</strong></div>
+            <div class="stage-foot-right"><span class="mini-caption">ЧАСТОТА ОБРАБОТКИ</span><strong id="fpsValue">— <small>FPS</small></strong></div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-group primary-controls">
+            <button class="control-button accent" type="button" id="cameraButton"><span class="ctrl-icon">◉</span><span>Камера</span></button>
+            <button class="control-button" type="button" id="demoButton"><span class="ctrl-icon">▶</span><span>Пример</span></button>
+            <button class="control-button" type="button" id="videoButton"><span class="ctrl-icon">▤</span><span>Своё видео</span></button>
+            <input type="file" id="videoFile" accept="video/*" hidden>
+          </div>
+          <div class="control-divider"></div>
+          <div class="control-group utility-controls">
+            <button class="square-button" type="button" id="switchButton" aria-label="Переключить камеру" title="Переключить камеру">⇄</button>
+            <button class="square-button" type="button" id="resetButton" aria-label="Сбросить выбор метки" title="Сбросить выбор метки">↺</button>
+            <button class="square-button" type="button" id="snapshotButton" aria-label="Сохранить кадр" title="Сохранить кадр">▣</button>
+            <button class="square-button" type="button" id="stopButton" aria-label="Остановить видео" title="Остановить видео">■</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel" aria-label="Результаты обработки">
+        <div class="panel-heading"><div><span class="section-kicker">АНАЛИЗ КАДРА</span><h2>Наблюдение</h2></div><span class="small-version">01 / LIVE</span></div>
+        <div class="detection-card" id="detectionCard">
+          <div class="card-header"><span class="small-caps">ЦВЕТНАЯ МЕТКА</span><span class="status-label" id="trackStatus">НЕ ВЫБРАНА</span></div>
+          <div class="marker-content">
+            <div class="marker-swatch" id="markerSwatch"><span>+</span></div>
+            <div class="marker-details"><strong id="trackLabel">Выбери метку</strong><small id="trackDetail">Коснись цветной области в кадре</small></div>
+          </div>
+          <div class="detail-split"><div><span>ПЛОЩАДЬ</span><strong id="markerArea">— <small>px²</small></strong></div><div><span>СМЕЩЕНИЕ</span><strong id="markerMotion">— <small>px</small></strong></div></div>
+        </div>
+        <div class="analysis-block">
+          <div class="block-heading"><div><span class="section-kicker">ОБРАБОТКА</span><h3>Сглаживание + Собель</h3></div><span class="method-tag">3 × 3</span></div>
+          <canvas id="edgesCanvas" class="edges-canvas" width="320" height="180" aria-label="Карта градиента кадра"></canvas>
+          <div class="data-row"><span>Средний нормированный градиент</span><strong id="meanValue">—</strong></div>
+          <div class="data-row"><span>Резкость кадра, E</span><strong id="sharpnessValue">—</strong></div>
+        </div>
+        <div class="analysis-block histogram-block">
+          <div class="block-heading"><div><span class="section-kicker">РАСПРЕДЕЛЕНИЕ</span><h3>Статистика яркостей</h3></div><span class="method-tag">β</span></div>
+          <canvas id="histCanvas" width="320" height="90" class="hist-canvas" aria-label="Гистограмма градиентов"></canvas>
+          <div class="params-row"><div>α <strong id="alphaValue">—</strong></div><div>β <strong id="betaValue">—</strong></div><div>σ² <strong id="varianceValue">—</strong></div></div>
+          <div class="data-row"><span>Порог двух классов (Отсу)</span><strong id="thresholdValue">—</strong></div>
+          <div class="data-row"><span>β-фон: α / β</span><strong id="backgroundFit">—</strong></div>
+          <div class="data-row"><span>β-контуры: α / β</span><strong id="contoursFit">—</strong></div>
+        </div>
+        <div class="side-note"><span class="note-icon">i</span><p>Математическая обработка кадра соответствует общим этапам 1.1 архива: сглаживание, Собель, нормировка, порог, бета-аппроксимация. Метка отслеживается отдельно по цвету. Это не алгоритм наведения.</p></div>
+      </aside>
+    </main>
+    <footer class="bottombar"><div><span class="footer-dot"></span> Обработка происходит на устройстве — видео никуда не отправляется</div><span>ДЛЯ ЦВЕТНЫХ МЕТОК · НЕ ДЛЯ НАВЕДЕНИЯ</span></footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-overlay hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal"><button class="close-modal" id="closeHelp" type="button" aria-label="Закрыть">×</button><span class="section-kicker">КРАТКАЯ ИНСТРУКЦИЯ</span><h2 id="helpTitle">Как проверить работу?</h2>
+      <ol><li>Поверни телефон горизонтально и нажми <b>Камера</b>. Разреши доступ в браузере.</li><li>Прикрепи к книге или другой вещи яркую цветную бумажную наклейку.</li><li>Коснись наклейки на экране. Появятся рамка, точка и след движения.</li><li>Подвигай предмет. Можно проверить потерю метки, освещение и скорость.</li><li>Справа смотри контуры Собеля, гистограмму и параметры бета-распределения.</li></ol>
+      <p>Без камеры можно выбрать <b>Пример</b> или загрузить локальное видео. Для доступа к камере нужен HTTPS или localhost; на iPhone открывай страницу через Safari.</p>
+      <button id="gotIt" class="button button-primary" type="button">Понятно</button>
+    </div>
+  </div>
+  <div class="rotate-overlay" id="rotateOverlay"><div class="rotate-panel"><div class="rotate-icon">▯<span>↻</span></div><h2>Поверни телефон</h2><p>Лаборатория спроектирована для горизонтального экрана — так видно и камеру, и графики.</p><button id="ignoreRotate" class="button button-ghost" type="button">Продолжить вертикально</button></div></div>
+  <video id="sourceVideo" muted playsinline autoplay preload="metadata" aria-hidden="true"></video>
+  <script>
+"use strict";
+/** Pure image-analysis functions. No DOM and no server. */
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const delta = max - min;
+  let h = 0;
+  if (delta > 1e-12) {
+    if (max === r) h = ((g - b) / delta) % 6;
+    else if (max === g) h = (b - r) / delta + 2;
+    else h = (r - g) / delta + 4;
+    h /= 6;
+    if (h < 0) h += 1;
+  }
+  return { h, s: max === 0 ? 0 : delta / max, v: max };
+}
+
+function hueDistance(a, b) {
+  const d = Math.abs(a - b) % 1;
+  return Math.min(d, 1 - d);
+}
+
+/** Sample around a user-selected saturated color marker. Return null for gray areas. */
+function sampleColor(imageData, width, height, px, py, radius = 2) {
+  const pixels = imageData.data ?? imageData;
+  const x0 = Math.round(px), y0 = Math.round(py);
+  const samples = [];
+  for (let y = Math.max(0, y0 - radius); y <= Math.min(height - 1, y0 + radius); y++) {
+    for (let x = Math.max(0, x0 - radius); x <= Math.min(width - 1, x0 + radius); x++) {
+      const i = (y * width + x) * 4;
+      const c = rgbToHsv(pixels[i], pixels[i + 1], pixels[i + 2]);
+      if (c.s >= 0.30 && c.v >= 0.18) samples.push(c);
+    }
+  }
+  if (samples.length < 3) return null;
+  let sumC = 0, sumS = 0, sumV = 0, sumSat = 0;
+  for (const c of samples) {
+    sumC += Math.cos(c.h * 2 * Math.PI);
+    sumS += Math.sin(c.h * 2 * Math.PI);
+    sumV += c.v;
+    sumSat += c.s;
+  }
+  const h = (Math.atan2(sumS, sumC) / (2 * Math.PI) + 1) % 1;
+  // Ignore mixed-color selection: require a clear hue majority.
+  if (Math.hypot(sumS, sumC) / samples.length < 0.70) return null;
+  return { h, s: sumSat / samples.length, v: sumV / samples.length };
+}
+
+/** Detect only a brightly colored connected patch, never an arbitrary object. */
+function detectMarker(imageData, width, height, signature, anchor = null, minimumArea = null) {
+  if (!signature) return null;
+  const pixels = imageData.data ?? imageData;
+  const n = width * height;
+  const minArea = minimumArea ?? Math.max(7, Math.round(n * 0.00015));
+  const mask = new Uint8Array(n);
+  for (let k = 0, i = 0; k < n; k++, i += 4) {
+    const c = rgbToHsv(pixels[i], pixels[i + 1], pixels[i + 2]);
+    if (c.s >= Math.max(0.30, signature.s * 0.52) && c.v >= Math.max(0.16, signature.v * 0.35) && hueDistance(c.h, signature.h) < 0.066) {
+      mask[k] = 1;
+    }
+  }
+  const visited = new Uint8Array(n);
+  const queue = new Int32Array(n);
+  let best = null, bestScore = Infinity;
+  const diag = Math.hypot(width, height);
+  for (let start = 0; start < n; start++) {
+    if (!mask[start] || visited[start]) continue;
+    let head = 0, tail = 1;
+    queue[0] = start;
+    visited[start] = 1;
+    let sx = 0, sy = 0, minX = width, minY = height, maxX = 0, maxY = 0;
+    while (head < tail) {
+      const pos = queue[head++];
+      const x = pos % width, y = (pos / width) | 0;
+      sx += x; sy += y;
+      minX = Math.min(minX, x); minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+      const left = x > 0 ? pos - 1 : -1;
+      const right = x < width - 1 ? pos + 1 : -1;
+      const up = y > 0 ? pos - width : -1;
+      const down = y < height - 1 ? pos + width : -1;
+      for (const nei of [left, right, up, down]) {
+        if (nei >= 0 && mask[nei] && !visited[nei]) {
+          visited[nei] = 1;
+          queue[tail++] = nei;
+        }
+      }
+    }
+    if (tail < minArea) continue;
+    const cx = sx / tail, cy = sy / tail;
+    const dist = anchor ? Math.hypot(cx - anchor.x, cy - anchor.y) : 0;
+    // Stay near the user's chosen patch; do not jump to other same-color items.
+    if (anchor && dist > diag * 0.24) continue;
+    const sizePenalty = anchor?.area ? Math.abs(Math.log(tail / anchor.area)) * 4 : 0;
+    const score = dist + sizePenalty;
+    if (score < bestScore) {
+      bestScore = score;
+      best = { x: cx, y: cy, area: tail, box: { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 } };
+    }
+  }
+  return best;
+}
+
+/** Sobel gradient statistics + method-of-moments beta fit. Small preview is returned. */
+function analyzeFrame(imageData, width, height) {
+  const data = imageData.data ?? imageData;
+  const n = width * height;
+  const gray = new Float32Array(n);
+  for (let k = 0, i = 0; k < n; k++, i += 4) {
+    gray[k] = (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+  }
+  // Fixed separable 3×3 Gaussian-like low-pass [1, 2, 1] ⊗ [1, 2, 1] / 16.
+  // A general-purpose denoising step preceding the Sobel operator.
+  const smooth = new Float32Array(n);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let weighted = 0, totalWeight = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        const yy = Math.max(0, Math.min(height - 1, y + dy));
+        for (let dx = -1; dx <= 1; dx++) {
+          const xx = Math.max(0, Math.min(width - 1, x + dx));
+          const weight = (dy === 0 ? 2 : 1) * (dx === 0 ? 2 : 1);
+          weighted += gray[yy * width + xx] * weight;
+          totalWeight += weight;
+        }
+      }
+      smooth[y * width + x] = weighted / totalWeight;
+    }
+  }
+  const mag = new Float32Array(n);
+  let max = 0, lap = 0;
+  const histogram = new Array(28).fill(0);
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      const a = smooth[i - width - 1], b = smooth[i - width], c = smooth[i - width + 1];
+      const d = smooth[i - 1], e = smooth[i], f = smooth[i + 1];
+      const g = smooth[i + width - 1], h = smooth[i + width], j = smooth[i + width + 1];
+      const gx = -a + c - 2 * d + 2 * f - g + j;
+      const gy = -a - 2 * b - c + g + 2 * h + j;
+      const v = Math.hypot(gx, gy);
+      mag[i] = v; max = Math.max(max, v);
+      lap += Math.abs(4 * e - b - d - f - h);
+    }
+  }
+  let mean = 0, m2 = 0, count = 0;
+  const edgePixels = new Uint8ClampedArray(n);
+  if (max > 1e-10) {
+    for (let k = 0; k < n; k++) {
+      const v = Math.min(1, mag[k] / max);
+      edgePixels[k] = Math.round(v * 255);
+      histogram[Math.min(histogram.length - 1, Math.floor(v * histogram.length))] += 1;
+      count++;
+      const delta = v - mean;
+      mean += delta / count;
+      m2 += delta * (v - mean);
+    }
+  } else {
+    histogram[0] = n;
+    count = n;
+  }
+  const variance = count > 0 ? m2 / count : 0;
+  const fit = betaFromMoments(mean, variance);
+  // Diagnostic two-class gradient segmentation (Otsu), not target detection.
+  // Both distributions are descriptive histograms, not posterior probabilities.
+  const threshold = otsuThreshold(histogram);
+  const low = makeMoments(), high = makeMoments();
+  if (max > 1e-10) {
+    for (let k = 0; k < n; k++) {
+      const value = Math.min(1, mag[k] / max);
+      if (value < threshold) low.push(value); else high.push(value);
+    }
+  }
+  const background = low.result(), contours = high.result();
+  return { mean, variance, alpha: fit?.alpha ?? null, beta: fit?.beta ?? null,
+    histogram, edgePixels, threshold, background, contours,
+    sharpness: lap / Math.max(1, (width - 2) * (height - 2)), maxGradient: max };
+}
+
+function betaFromMoments(mean, variance) {
+  if (!(mean > 0 && mean < 1) || !(variance > 0 && variance < mean * (1 - mean))) return null;
+  const t = mean * (1 - mean) / variance - 1;
+  const alpha = mean * t, beta = (1 - mean) * t;
+  return Number.isFinite(alpha) && Number.isFinite(beta) && alpha > 0 && beta > 0 ? { alpha, beta } : null;
+}
+
+
+/** Histogram-based Otsu threshold in [0, 1], for generic edge statistics. */
+function otsuThreshold(histogram) {
+  const N = histogram.reduce((sum, x) => sum + x, 0);
+  if (!N) return 0;
+  const bins = histogram.length;
+  const total = histogram.reduce((sum, value, i) => sum + i * value, 0);
+  let w0 = 0, weighted0 = 0, best = -1, split = 0;
+  for (let i = 0; i < bins - 1; i++) {
+    w0 += histogram[i]; weighted0 += i * histogram[i];
+    const w1 = N - w0;
+    if (!w0 || !w1) continue;
+    const m0 = weighted0 / w0, m1 = (total - weighted0) / w1;
+    const score = w0 * w1 * (m0 - m1) ** 2;
+    if (score > best) { best = score; split = i; }
+  }
+  return best >= 0 ? (split + 1) / bins : 0;
+}
+
+/** Online population moments for each gradient intensity subset. */
+function makeMoments() {
+  let n = 0, mean = 0, m2 = 0;
+  return {
+    push(x) { n += 1; const d = x - mean; mean += d / n; m2 += d * (x - mean); },
+    result() {
+      const variance = n ? m2 / n : 0;
+      const fit = betaFromMoments(mean, variance);
+      return { count: n, mean, variance, alpha: fit?.alpha ?? null, beta: fit?.beta ?? null };
+    }
+  };
+}
+
+
+
+const $ = (id) => document.getElementById(id);
+const stage = $('stageCanvas'), stageCtx = stage.getContext('2d', { alpha: false });
+const video = $('sourceVideo');
+const analysisCanvas = document.createElement('canvas');
+const analysisCtx = analysisCanvas.getContext('2d', { willReadFrequently: true });
+const demoCanvas = document.createElement('canvas');
+demoCanvas.width = 960; demoCanvas.height = 540;
+const demoCtx = demoCanvas.getContext('2d');
+const edgeCtx = $('edgesCanvas').getContext('2d');
+const histCtx = $('histCanvas').getContext('2d');
+const state = {
+  mode: null, stream: null, objectUrl: null, facing: 'environment',
+  signature: null, marker: null, previous: null, trail: [],
+  imageData: null, frameW: 320, frameH: 180,
+  lastProcessed: 0, fps: 0, demoStart: 0, sourceReady: false,
+  presentation: { x: 0, y: 0, w: 0, h: 0 }, toastTimer: null
+};
+
+function showToast(message) {
+  const el = $('toast');
+  el.textContent = message;
+  el.classList.add('visible');
+  clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => el.classList.remove('visible'), 3500);
+}
+
+function resizeStage() {
+  const rect = stage.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cssW = Math.max(1, rect.width), cssH = Math.max(1, rect.height);
+  stage.width = Math.round(cssW * dpr);
+  stage.height = Math.round(cssH * dpr);
+  stageCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!state.mode) paintIdle();
+}
+
+function paintIdle() {
+  const W = stage.clientWidth, H = stage.clientHeight;
+  stageCtx.fillStyle = '#0b1b22'; stageCtx.fillRect(0, 0, W, H);
+  const grad = stageCtx.createRadialGradient(W/2, H/2, 1, W/2, H/2, Math.max(W,H)*0.7);
+  grad.addColorStop(0,'#1d363b');grad.addColorStop(1,'#0c181f');
+  stageCtx.fillStyle = grad;stageCtx.fillRect(0,0,W,H);
+  stageCtx.lineWidth = 1;stageCtx.strokeStyle = 'rgba(168,206,197,.035)';
+  for (let x = 0; x < W; x += 36) {stageCtx.beginPath();stageCtx.moveTo(x,0);stageCtx.lineTo(x,H);stageCtx.stroke();}
+  for (let y = 0; y < H; y += 36) {stageCtx.beginPath();stageCtx.moveTo(0,y);stageCtx.lineTo(W,y);stageCtx.stroke();}
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  state.sourceReady = false;
+  $('emptyState').classList.toggle('hidden', !!mode);
+  $('hintPill').classList.toggle('hidden', !mode);
+  $('statusLamp').classList.toggle('active', !!mode);
+  $('modeDot').classList.toggle('active', !!mode);
+  const labels = {camera:'КАМЕРА · ЛОКАЛЬНО', demo:'ИСКУССТВЕННАЯ СЦЕНА', file:'ЛОКАЛЬНЫЙ ВИДЕОФАЙЛ'};
+  $('sourceLabel').textContent = labels[mode] || 'ИСТОЧНИК НЕ ВЫБРАН';
+  $('modeText').textContent = mode ? 'ОЖИДАНИЕ МЕТКИ' : 'ГОТОВ К РАБОТЕ';
+  $('switchButton').disabled = mode !== 'camera';
+  $('snapshotButton').disabled = !mode;
+  $('stopButton').disabled = !mode;
+}
+
+function clearMarker() {
+  state.signature = null;
+  state.marker = null;
+  state.previous = null;
+  state.trail = [];
+  $('trackStatus').textContent = 'НЕ ВЫБРАНА';
+  $('trackStatus').className = 'status-label';
+  $('trackLabel').textContent = 'Выбери метку';
+  $('trackDetail').textContent = 'Коснись цветной области в кадре';
+  $('markerSwatch').style.background = '';
+  $('markerSwatch').innerHTML = '<span>+</span>';
+  $('markerArea').innerHTML = '— <small>px²</small>';
+  $('markerMotion').innerHTML = '— <small>px</small>';
+  $('coordinates').textContent = 'X —   Y —';
+  $('hintText').textContent = 'Коснись цветной метки в кадре';
+  if (state.mode) $('modeText').textContent = 'ОЖИДАНИЕ МЕТКИ';
+}
+
+function cleanupSource() {
+  if (state.stream) {
+    state.stream.getTracks().forEach(track => track.stop());
+    state.stream = null;
+  }
+  video.pause();
+  video.srcObject = null;
+  video.removeAttribute('src');
+  video.load();
+  if (state.objectUrl) {URL.revokeObjectURL(state.objectUrl);state.objectUrl=null;}
+}
+
+function stopAll() {
+  cleanupSource();
+  setMode(null);
+  clearMarker();
+  state.imageData = null;
+  state.fps = 0;state.lastProcessed=0;
+  $('fpsValue').innerHTML = '— <small>FPS</small>';
+  $('frameSize').textContent='— × —';
+  $('meanValue').textContent = '—';$('sharpnessValue').textContent = '—';
+  $('alphaValue').textContent='—';$('betaValue').textContent='—';$('varianceValue').textContent='—';
+  $('thresholdValue').textContent='—';$('backgroundFit').textContent='—';$('contoursFit').textContent='—';
+  paintIdle();
+  edgeCtx.clearRect(0,0,$('edgesCanvas').width,$('edgesCanvas').height);
+  histCtx.clearRect(0,0,$('histCanvas').width,$('histCanvas').height);
+}
+
+async function startCamera() {
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    showToast('Камера доступна на HTTPS или localhost. Для проверки здесь используй «Пример».');
+    return;
+  }
+  cleanupSource(); clearMarker();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:state.facing},width:{ideal:1280},height:{ideal:720}}});
+    state.stream = stream;
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    await video.play();
+    setMode('camera');
+    state.sourceReady = true;
+    showToast('Камера включена. Коснись яркой цветной метки.');
+  } catch (err) {
+    cleanupSource(); setMode(null);
+    const message = err?.name === 'NotAllowedError' ? 'Разреши доступ к камере в настройках браузера.'
+      : err?.name === 'NotFoundError' ? 'Камера не найдена на этом устройстве.'
+      : 'Не удалось включить камеру. Попробуй пример или своё видео.';
+    showToast(message);
+  }
+}
+
+function startDemo() {
+  cleanupSource();clearMarker();
+  state.demoStart = performance.now();
+  setMode('demo');
+  state.sourceReady = true;
+  showToast('Нажми на движущийся оранжевый кружок, затем наблюдай за ним.');
+}
+
+async function startFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('video/')) {showToast('Нужен видеофайл (MP4, WebM или поддерживаемый формат).');return;}
+  cleanupSource(); clearMarker();
+  state.objectUrl = URL.createObjectURL(file);
+  video.src = state.objectUrl;
+  video.muted=true;video.loop=true;video.playsInline=true;
+  try {
+    await video.play();
+    setMode('file');state.sourceReady=true;
+    showToast('Видео загружено. Отметь яркую цветную область на записи.');
+  } catch {
+    cleanupSource(); setMode(null);
+    showToast('Браузер не смог открыть этот видеоформат. Попробуй MP4.');
+  }
+}
+
+function fillDemo(time) {
+  const ctx=demoCtx,W=demoCanvas.width,H=demoCanvas.height;
+  const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#24343c');g.addColorStop(1,'#53645e');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // Stylized tabletop with subtle details to make the Sobel map informative.
+  ctx.fillStyle='#273c3e';ctx.fillRect(0,420,W,120);
+  ctx.strokeStyle='rgba(231,241,218,.09)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.save();ctx.translate(158,145);ctx.rotate(-.11);ctx.fillStyle='#ebeee2';ctx.shadowColor='#0009';ctx.shadowBlur=25;ctx.fillRect(0,0,305,245);ctx.shadowBlur=0;
+  ctx.fillStyle='#25383c';ctx.font='bold 26px system-ui';ctx.fillText('FIELD NOTES',29,53);
+  ctx.fillStyle='#75928b';ctx.font='15px system-ui';ctx.fillText('DEMO / FRAME 01',29,82);
+  for(let i=0;i<5;i++){ctx.fillStyle='#c4ccc4';ctx.fillRect(29,118+i*20,195+(i%2)*34,6);}
+  ctx.strokeStyle='#95a89c';ctx.lineWidth=3;ctx.strokeRect(232,165,50,50);ctx.restore();
+  ctx.save();ctx.translate(754,170);ctx.rotate(.17);ctx.fillStyle='#1c3538';ctx.shadowColor='#0008';ctx.shadowBlur=25;ctx.fillRect(-105,-85,220,170);ctx.shadowBlur=0;
+  ctx.strokeStyle='#68a1a1';ctx.strokeRect(-68,-48,145,95);ctx.fillStyle='#a5e5b1';ctx.font='bold 12px system-ui';ctx.fillText('LOCAL PROCESSING',-67,71);ctx.restore();
+  const cx=485+215*Math.sin(time*.82),cy=260+140*Math.sin(time*.59+0.4);
+  ctx.save();ctx.translate(cx,cy);ctx.shadowColor='#000a';ctx.shadowBlur=17;ctx.shadowOffsetY=9;
+  ctx.fillStyle='#fb9146';ctx.beginPath();ctx.arc(0,0,28,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.strokeStyle='#fbd8a9';ctx.lineWidth=5;ctx.stroke();ctx.fillStyle='#ffffff50';ctx.beginPath();ctx.arc(-8,-9,6,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.fillStyle='rgba(237,247,228,.68)';ctx.font='600 12px system-ui';ctx.fillText('ДЕМОНСТРАЦИЯ · КОСНИСЬ ОРАНЖЕВОГО КРУГА',34,506);
+}
+
+function getSource() {
+  if (state.mode === 'demo') return {element:demoCanvas, width:960,height:540};
+  if (state.mode === 'file' || state.mode === 'camera') {
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || video.videoWidth === 0) return null;
+    return {element:video,width:video.videoWidth,height:video.videoHeight};
+  }
+  return null;
+}
+
+function processImage(source) {
+  const w=320, h=Math.max(60,Math.min(480,Math.round(w*source.height/source.width)));
+  if (analysisCanvas.width!==w || analysisCanvas.height!==h){analysisCanvas.width=w;analysisCanvas.height=h;state.frameW=w;state.frameH=h;}
+  analysisCtx.drawImage(source.element,0,0,w,h);
+  const frame = analysisCtx.getImageData(0,0,w,h);
+  state.imageData=frame;
+  if(state.signature){
+    // Restrict relocalization to previous local region rather than jumping arbitrarily.
+    const prev=state.marker || state.previous;
+    const found=detectMarker(frame,w,h,state.signature,prev);
+    if (found) {
+      const move=state.marker?Math.hypot(found.x-state.marker.x,found.y-state.marker.y):null;
+      state.marker=found;state.previous=found;
+      state.trail.push({x:found.x,y:found.y});
+      if(state.trail.length>42)state.trail.shift();
+      $('trackStatus').textContent='ОБНАРУЖЕНА';$('trackStatus').className='status-label tracking';
+      $('modeText').textContent='ЦВЕТНАЯ МЕТКА';
+      $('trackLabel').textContent='Метка в кадре';$('trackDetail').textContent='Рамка — область одного цвета';
+      $('markerArea').innerHTML=`${found.area} <small>px²</small>`;
+      $('markerMotion').innerHTML=`${move===null?'—':move.toFixed(1)} <small>px</small>`;
+      $('coordinates').textContent=`X ${Math.round(100*found.x/w)}%   Y ${Math.round(100*found.y/h)}%`;
+      $('hintPill').classList.add('hidden');
+    } else {
+      state.marker=null;
+      $('trackStatus').textContent='ПОТЕРЯНА';$('trackStatus').className='status-label lost';
+      $('modeText').textContent='МЕТКА НЕ НАЙДЕНА';
+      $('trackLabel').textContent='Метка исчезла';$('trackDetail').textContent='Верни яркий цвет в кадр';
+      $('coordinates').textContent='X —   Y —';
+      $('markerMotion').innerHTML='— <small>px</small>';
+    }
+  }
+  const stats=analyzeFrame(frame,w,h);
+  renderStats(stats,w,h);
+  $('frameSize').textContent=`${source.width} × ${source.height}`;
+  return stats;
+}
+
+function renderStats(stats,w,h) {
+  $('meanValue').textContent=stats.mean.toFixed(4);
+  $('sharpnessValue').textContent=stats.sharpness.toFixed(5);
+  $('alphaValue').textContent=stats.alpha===null?'—':stats.alpha.toFixed(2);
+  $('betaValue').textContent=stats.beta===null?'—':stats.beta.toFixed(2);
+  $('varianceValue').textContent=stats.variance.toFixed(4);
+  $('thresholdValue').textContent=stats.threshold.toFixed(3);
+  const fmt = (obj) => obj.alpha===null ? '—' : `${obj.alpha.toFixed(2)} / ${obj.beta.toFixed(2)}`;
+  $('backgroundFit').textContent=fmt(stats.background);
+  $('contoursFit').textContent=fmt(stats.contours);
+  const ec=$('edgesCanvas');
+  if(ec.width!==w || ec.height!==h){ec.width=w;ec.height=h;}
+  const img=edgeCtx.createImageData(w,h);
+  const p=img.data;
+  for(let i=0,k=0;i<stats.edgePixels.length;i++,k+=4){
+    const v=stats.edgePixels[i];p[k]=Math.min(255,10+v*.78);p[k+1]=Math.min(255,30+v);p[k+2]=Math.min(255,30+v*.68);p[k+3]=255;
+  }
+  edgeCtx.putImageData(img,0,0);
+  const hc=$('histCanvas'),ctx=histCtx,H=hc.height,W=hc.width;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#09171c';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#263e40';ctx.lineWidth=1;
+  for(let j=1;j<=2;j++){ctx.beginPath();ctx.moveTo(0,H*j/3);ctx.lineTo(W,H*j/3);ctx.stroke();}
+  // sqrt transform improves visibility of low-count bins without altering the statistics.
+  const hist=stats.histogram,max=Math.max(1,...hist);
+  const barW=W/hist.length;
+  for(let i=0;i<hist.length;i++){
+    const barH=Math.sqrt(hist[i]/max)*(H-12);
+    ctx.fillStyle=(i / hist.length) < stats.threshold ? '#447d76':'#b7f18c';
+    ctx.fillRect(i*barW+1,H-barH-2,Math.max(1,barW-2),barH);
+  }
+  if (stats.threshold > 0) {
+    const x = stats.threshold * W;
+    ctx.strokeStyle = '#f7b174';ctx.lineWidth = 2;
+    ctx.beginPath();ctx.moveTo(x,1);ctx.lineTo(x,H-1);ctx.stroke();
+  }
+}
+
+function drawOverlay(ctx,p,source) {
+  const sx=p.w/state.frameW,sy=p.h/state.frameH;
+  ctx.save();ctx.translate(p.x,p.y);
+  if(state.trail.length>1){
+    ctx.beginPath();ctx.strokeStyle='rgba(181,245,145,.65)';ctx.lineWidth=2;
+    state.trail.forEach((pos,i)=>{if(i===0)ctx.moveTo(pos.x*sx,pos.y*sy);else ctx.lineTo(pos.x*sx,pos.y*sy);});
+    ctx.stroke();
+    for(let i=0;i<state.trail.length;i+=5){const a=state.trail[i];ctx.beginPath();ctx.arc(a.x*sx,a.y*sy,2,0,Math.PI*2);ctx.fillStyle=`rgba(183,241,140,${.13+.7*i/state.trail.length})`;ctx.fill();}
+  }
+  if(state.marker){
+    const m=state.marker, b=m.box;
+    const x=b.x*sx,y=b.y*sy,w=b.w*sx,h=b.h*sy;
+    ctx.strokeStyle='#bbfa94';ctx.lineWidth=2.1;ctx.shadowColor='#b7f18c';ctx.shadowBlur=7;
+    ctx.strokeRect(x-5,y-5,w+10,h+10);ctx.shadowBlur=0;
+    ctx.beginPath();ctx.arc(m.x*sx,m.y*sy,5,0,Math.PI*2);ctx.fillStyle='#e6ffdf';ctx.fill();
+    ctx.beginPath();ctx.arc(m.x*sx,m.y*sy,10,0,Math.PI*2);ctx.strokeStyle='#b7f18c';ctx.lineWidth=1;ctx.stroke();
+    const tagX=Math.min(Math.max(5,x-5),p.w-115),tagY=Math.max(23,y-13);
+    ctx.fillStyle='rgba(16,38,29,.92)';ctx.fillRect(tagX,tagY-20,112,19);
+    ctx.fillStyle='#d5fac0';ctx.font='bold 10px system-ui';ctx.fillText('ЦВЕТНАЯ МЕТКА',tagX+7,tagY-7);
+  }
+  ctx.restore();
+}
+
+function drawStage(source) {
+  const W=stage.clientWidth,H=stage.clientHeight;
+  stageCtx.fillStyle='#0a181e';stageCtx.fillRect(0,0,W,H);
+  const factor=Math.min(W/source.width,H/source.height);
+  const p={x:(W-source.width*factor)/2,y:(H-source.height*factor)/2,w:source.width*factor,h:source.height*factor};
+  state.presentation=p;
+  stageCtx.drawImage(source.element,p.x,p.y,p.w,p.h);
+  drawOverlay(stageCtx,p,source);
+}
+
+function tick(now) {
+  requestAnimationFrame(tick);
+  if(!state.mode || !state.sourceReady || now-state.lastProcessed<48)return;
+  const interval=now-state.lastProcessed;
+  if(state.lastProcessed && interval<1000){const measured=1000/interval;state.fps=state.fps?state.fps*.78+measured*.22:measured;}
+  state.lastProcessed=now;
+  if(state.mode==='demo')fillDemo((now-state.demoStart)/1000);
+  const source=getSource();
+  if(!source)return;
+  try {processImage(source);drawStage(source);} catch(err){console.error(err);showToast('Ошибка обработки кадра. Перезапусти источник.');stopAll();return;}
+  $('fpsValue').innerHTML=`${state.fps?state.fps.toFixed(0):'—'} <small>FPS</small>`;
+}
+
+function selectAt(event) {
+  if(!state.mode||!state.imageData)return;
+  const rect=stage.getBoundingClientRect(), p=state.presentation;
+  const x=event.clientX-rect.left,y=event.clientY-rect.top;
+  if(x<p.x||x>p.x+p.w||y<p.y||y>p.y+p.h){showToast('Нажми на цветную метку внутри изображения.');return;}
+  const rx=(x-p.x)/p.w*state.frameW,ry=(y-p.y)/p.h*state.frameH;
+  const signature=sampleColor(state.imageData,state.frameW,state.frameH,rx,ry);
+  if(!signature){showToast('Это не яркая одноцветная область. Попробуй красную, оранжевую или зелёную наклейку.');return;}
+  const initial={x:rx,y:ry};
+  const marker=detectMarker(state.imageData,state.frameW,state.frameH,signature,initial);
+  if(!marker){showToast('Не удалось выделить связную цветную метку. Выбери более крупную наклейку.');return;}
+  state.signature=signature;state.marker=marker;state.previous=marker;state.trail=[];
+  const hue=Math.round(signature.h*360);
+  $('markerSwatch').style.background=`hsl(${hue} 82% 55%)`;
+  $('markerSwatch').innerHTML='';
+  $('hintPill').classList.add('hidden');
+  $('trackLabel').textContent='Метка выбрана';
+  $('trackDetail').textContent='Теперь перемещай цветную метку';
+  showToast('Метка выбрана — перемещай предмет и смотри за рамкой.');
+}
+
+$('cameraButton').addEventListener('click',startCamera);
+$('startCenter').addEventListener('click',startCamera);
+$('demoButton').addEventListener('click',startDemo);
+$('demoCenter').addEventListener('click',startDemo);
+$('stopButton').addEventListener('click',stopAll);
+$('resetButton').addEventListener('click',()=>{clearMarker(); if(state.mode)showToast('Метка сброшена. Выбери другую цветную область.');});
+$('switchButton').addEventListener('click',()=>{state.facing=state.facing==='environment'?'user':'environment';startCamera();});
+$('videoButton').addEventListener('click',()=>$('videoFile').click());
+$('videoFile').addEventListener('change',async(event)=>{const file=event.target.files?.[0];await startFile(file);event.target.value='';});
+$('snapshotButton').addEventListener('click',()=>{
+  if(!state.mode)return;
+  try{stage.toBlob(blob=>{if(!blob){showToast('Не удалось сохранить изображение.');return;}
+    const a=document.createElement('a');const url=URL.createObjectURL(blob);
+    a.href=url;a.download=`frame-lab-${new Date().toISOString().replace(/[:.]/g,'-')}.png`;
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
+    showToast('Снимок кадра сохранён.');
+  },'image/png');}catch{showToast('Браузер не разрешил сохранить кадр.');}
+});
+stage.addEventListener('click',selectAt);
+$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));
+const closeHelp=()=>$('helpModal').classList.add('hidden');
+$('closeHelp').addEventListener('click',closeHelp);$('gotIt').addEventListener('click',closeHelp);
+$('helpModal').addEventListener('click',(e)=>{if(e.target===$('helpModal'))closeHelp();});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeHelp();});
+$('ignoreRotate').addEventListener('click',()=>$('rotateOverlay').classList.add('dismissed'));
+window.addEventListener('resize',resizeStage);
+window.addEventListener('pagehide',cleanupSource);
+resizeStage();setMode(null);requestAnimationFrame(tick);
+
+</script>
+</body>
+</html>
