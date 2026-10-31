@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#09131b">
   <meta name="description" content="Локальная лаборатория компьютерного зрения: выделяйте бытовые предметы на камере и изучайте их движение и статистику границ.">
-  <title>Frame Lab 360 — отслеживание предметов</title>
+  <title>FRAME LAB 360 — исходный алгоритм статьи и геометрия</title>
   <style>:root{color-scheme:dark;--bg:#081319;--panel:#0e2027;--line:#263d42;--text:#eaf6ed;--muted:#99b0b2;--lime:#c4f49b;--amber:#fbc57b;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
 *{box-sizing:border-box}html,body{padding:0;margin:0;width:100%;height:100%;font-family:var(--font);background:var(--bg);color:var(--text)}.hidden{display:none!important}button{color:inherit;border:0;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .app{height:100vh;height:100dvh;width:100%;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(ellipse at 40% 0%,#193139 0%,transparent 58%),var(--bg)}.top{height:62px;padding:0 max(15px,env(safe-area-inset-right)) 0 max(17px,env(safe-area-inset-left));flex:none;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.brand{display:flex;align-items:center;gap:10px;white-space:nowrap}.brand-glyph{color:var(--lime);font-size:30px;line-height:1}.brand b{font-size:19px;letter-spacing:.075em}.brand b span{color:var(--lime)}.brand-caption{font-size:9px;letter-spacing:.15em;color:#7ea1a0;padding-left:12px;border-left:1px solid var(--line)}.top-right{display:flex;gap:14px;align-items:center}.source-pill{font-size:10px;font-weight:700;letter-spacing:.09em;color:#b0d2c2}.small-btn{display:grid;place-items:center;background:#142b32;border:1px solid #34505a;width:34px;height:34px;border-radius:10px;font-weight:800;color:#c9e0dc}.main{flex:1;min-height:0;display:flex}.screen-column{flex:1;min-width:0;min-height:0;padding:14px 14px 12px 16px;display:flex;flex-direction:column;gap:11px}.screen{position:relative;flex:1;min-height:0;overflow:hidden;border:1px solid #38535c;border-radius:14px;background:#112630}.screen canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}.view-head{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;color:#aabebc;font-size:10px;font-weight:700;letter-spacing:.06em;text-shadow:0 1px 6px #000c}.tracking-pill{background:#081b22ce;border:1px solid #2f4a4f;border-radius:7px;padding:6px 9px;color:var(--lime)}.view-head>span{background:#081b22bb;border-radius:6px;padding:6px}.view-foot{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;color:#e0f0e8;font-weight:600;font-size:11px;text-shadow:0 1px 5px #000}.view-foot span{background:#06171aa3;padding:5px 8px;border-radius:6px}.view-foot span span{background:none;padding:0}.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;pointer-events:none;background:radial-gradient(ellipse at center,#1d343b9a,#092027cb)}.empty-ring{font-size:58px;color:var(--lime);line-height:1}.empty h1{margin:8px 0;font-size:clamp(20px,3.2vw,38px);line-height:1.15;letter-spacing:-.035em}.empty h1 i{font-style:normal;color:var(--lime)}.empty p{max-width:460px;font-size:clamp(11px,1.5vw,14px);line-height:1.5;color:#b2c5c8;margin:5px 0 13px}.empty-buttons{display:flex;gap:10px;pointer-events:auto}.instruction{position:absolute;top:49px;left:50%;transform:translateX(-50%);max-width:90%;text-align:center;background:#132e36db;border:1px solid #496062;color:#cde1d9;font-size:11px;border-radius:9px;padding:7px 10px;pointer-events:none}.toolbar{flex:none;display:flex;justify-content:space-between;gap:8px;align-items:center;min-height:44px}.tools-main,.tools-extra{display:flex;align-items:center;gap:6px;min-width:0}.btn,.icon-btn{height:42px;padding:0 14px;border-radius:10px;background:#1a343b;border:1px solid #365158;font-size:13px;font-weight:680;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}.btn.primary{color:#0b261a;background:var(--lime);border-color:var(--lime);font-weight:800}.btn.secondary{background:#263e46}.icon-btn{min-width:42px;padding:0 9px;font-size:20px}.stats-btn{font-size:14px;color:var(--lime)}.stats-btn span{font-size:12px}.bottom{height:27px;flex:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 20px;background:#0b1b22;border-top:1px solid #20363d;font-size:9px;letter-spacing:.075em;color:#9fb7ad}.bottom-hint{color:#728c8d}
@@ -59,6 +59,8 @@
 @media(max-width:840px){.detection-strip{gap:4px;max-width:calc(100% - 70px)}.detector-badge{padding:4px 6px;gap:4px;border-radius:6px}.detector-badge>span{font-size:8px}.detector-badge strong{font-size:9px}.detector-badge small{font-size:9px}}
 @media(max-width:600px){#resolution{display:none}.detection-strip{max-width:100%;flex-wrap:wrap}.detector-badge{max-width:100%}}
 @media(max-height:430px) and (orientation:landscape){.detector-badge{padding:3px 5px}.view-head{align-items:flex-start}}
+
+#scanRange{width:100%;margin:9px 0;padding:10px 9px;border-radius:8px;border:1px solid #3d6670;background:#142c36;color:#e8f5ee;font:inherit;font-size:12px}#scanRange:focus{outline:2px solid #7fdaff}
 </style>
 </head>
 <body>
@@ -74,7 +76,7 @@
         <div class="view-head">
           <div class="detection-strip" aria-label="Два отдельных индикатора оценки предмета">
             <div class="detector-badge" id="geometryBadge" data-state="idle"><span>ГЕОМЕТРИЯ</span><strong id="trackingPill">НЕ ВЫБРАН</strong></div>
-            <div class="detector-badge" id="bayesBadge" data-state="idle"><span>БАЙЕС · ПОИСК</span><strong id="bayesDetection">НЕТ МОДЕЛИ</strong><small id="bayesBadgeValue">—</small></div>
+            <div class="detector-badge" id="bayesBadge" data-state="idle"><span>АЛГОРИТМ СТАТЬИ</span><strong id="bayesDetection">НЕТ МОДЕЛИ</strong><small id="bayesBadgeValue">—</small></div>
           </div>
           <span id="resolution">— × —</span>
         </div>
@@ -96,28 +98,29 @@
       <div class="panel-top"><div><span class="eyebrow">СТАТИСТИЧЕСКИЙ АНАЛИЗ</span><h2>Внутри кадра</h2></div><button id="closePanel" class="small-btn close-panel" aria-label="Закрыть анализ">×</button></div>
       <div class="status-card"><div class="small-label">ВЫДЕЛЕННЫЙ ПРЕДМЕТ <span id="trackingStatus">НЕ ВЫБРАН</span></div><div class="status-line"><strong id="trackTitle">Выдели прямоугольник</strong><span id="trackScore">—</span></div><p id="trackDescription">Выдели границы книги, пульта или другого предмета с характерными точками.</p></div>
       <div class="panel-section probability-section" id="bayesSection" aria-label="Байесовская оценка">
-        <div class="small-label">СТАТУС БАЙЕСОВСКОГО ПОИСКА <span id="bayesPanelStatus">НЕТ МОДЕЛИ</span></div>
-        <div class="section-title"><span>ОЦЕНКА ПО ПОСЛЕДОВАТЕЛЬНОСТИ КАДРОВ</span><strong>Байес + β</strong></div>
+        <div class="small-label">МАТЕМАТИЧЕСКАЯ РЕКУРСИЯ ИЗ MATLAB <span id="bayesPanelStatus">НЕТ МОДЕЛИ</span></div>
+        <div class="section-title"><span>ОЦЕНКА ПО ПОСЛЕДОВАТЕЛЬНОСТИ КАДРОВ</span><strong>Из MATLAB · S1</strong></div>
         <div class="bayes-level"><strong id="bayesPercent">—</strong><span id="bayesObservation">Выбери предмет</span></div>
         <p class="bayes-summary" id="bayesMeaning">Число ниже — оценка модели; обнаружение без свежего измерения не подтверждается.</p>
         <div class="bayes-meter"><div id="bayesFill"></div></div>
         <canvas id="bayesHistory" width="320" height="96" aria-label="График условной вероятности по кадрам"></canvas>
-        <div class="value-pair"><span>Логарифм отношения правдоподобий</span><b id="bayesLogLR">—</b></div>
-        <div class="value-pair"><span>Контуры предмета: α / β</span><b id="bayesObjectFit">—</b></div>
-        <div class="value-pair"><span>Окружающая область: α / β</span><b id="bayesBackgroundFit">—</b></div>
-        <div class="value-pair"><span>Отобранные измерения</span><b id="bayesSampleCounts">—</b></div>
-        <p class="note bayes-note">Это <b>независимый вероятностный поиск</b> по всему кадру. Он сам строит вторую рамку по цвету и контурной статистике и пытается отвергать ложные совпадения через явный режим «объект отсутствует». Проценты не откалиброваны на реальном датасете, поэтому сравнивать нужно прежде всего поведение рамки.</p>
+        <div class="value-pair"><span>Накопленная сумма S1 (формулы 24–25)</span><b id="bayesLogLR">—</b></div>
+        <div class="value-pair"><span>Эталон: среднее / дисперсия</span><b id="bayesObjectFit">—</b></div>
+        <div class="value-pair"><span>Фон: среднее / дисперсия</span><b id="bayesBackgroundFit">—</b></div>
+        <div class="value-pair"><span>Контурных пикселей Q / фрагментов</span><b id="bayesSampleCounts">—</b></div>
+        <p class="note bayes-note">Это <b>двухмоментная рекурсия двух структур по исходным формулам MATLAB</b>, без цветовых гистограмм и без дополнительных эвристических правил признания предмета найденным. Программа хранит состояние каждой выбранной позиции в фиксированной сетке. Если предмет исчез, математическая модель всё равно может продолжать выбирать фрагмент: в оригинале нет отдельной гипотезы «объект отсутствует».</p>
       </div>
-      <div class="panel-section"><div class="section-title"><span>ПРЕДОБРАБОТКА</span><strong>Контуры Собеля</strong></div><canvas id="edges" width="320" height="180"></canvas><div class="value-pair"><span>Средний градиент</span><b id="mean">—</b></div><div class="value-pair"><span>Резкость</span><b id="sharpness">—</b></div></div>
-      <div class="panel-section"><div class="section-title"><span>РАСПРЕДЕЛЕНИЕ</span><strong>Бета-модель</strong></div><canvas id="hist" width="320" height="98"></canvas><div class="params"><div>α<b id="alpha">—</b></div><div>β<b id="beta">—</b></div><div>σ²<b id="variance">—</b></div></div><div class="value-pair"><span>Порог Отсу</span><b id="threshold">—</b></div></div>
-      <p class="note">Рамка следует за согласованным движением характерных точек предмета. Процент согласования — эвристическая оценка качества, а не калиброванная вероятность. Вероятностный канал теперь строит собственную вторую рамку и ищет предмет по всему кадру, используя цвет, контуры и явное решение «объект отсутствует». Это всё ещё гражданская исследовательская реализация, а не буквальная копия формул статьи 1 в 1.</p>
+      <div class="panel-section"><div class="section-title"><span>НАСТРОЙКИ ЭКСПЕРИМЕНТА</span><strong>Зона поиска статьи</strong></div><label for="scanRange" class="note">Число сдвигов от первого фрагмента. Исходная статья задаёт H и M явно; здесь область определяется твоим выбором, шаг — строго 1 пиксель.</label><select id="scanRange" aria-label="Зона поиска исходного алгоритма"><option value="12">13 × 13 позиций · быстрее</option><option value="24" selected>25 × 25 позиций</option><option value="48">49 × 49 позиций · медленнее</option><option value="50">51 × 51 позиций · параметр как в последнем блоке MATLAB</option></select><div class="value-pair"><span>Последний расчёт в отдельном потоке</span><b id="paperPerf">—</b></div><p class="note">Положение кандидатов не изменяется между кадрами, как указано в статье. Изменение зоны поиска требует повторно выделить предмет.</p></div>
+      <div class="panel-section"><div class="section-title"><span>ПРЕДОБРАБОТКА</span><strong>Справочная карта изображения</strong></div><canvas id="edges" width="320" height="180"></canvas><div class="value-pair"><span>Средний градиент</span><b id="mean">—</b></div><div class="value-pair"><span>Резкость</span><b id="sharpness">—</b></div></div>
+      <div class="panel-section"><div class="section-title"><span>РАСПРЕДЕЛЕНИЕ</span><strong>Справочная статистика кадра</strong></div><canvas id="hist" width="320" height="98"></canvas><div class="params"><div>α<b id="alpha">—</b></div><div>β<b id="beta">—</b></div><div>σ²<b id="variance">—</b></div></div><div class="value-pair"><span>Порог Отсу</span><b id="threshold">—</b></div></div>
+      <p class="note">Рамка следует за согласованным движением характерных точек предмета. Процент согласования — эвристическая оценка качества, а не калиброванная вероятность. Голубая рамка вычисляется по двум структурам, бета-моментам и накоплению суммы вероятностей из исходного MATLAB. Изменены только интерфейс ввода кадров и пользовательская зона поиска. Исторические пути к изображениям и radiopoligon.mat не требуются. Справочные карты в нижних двух панелях построены отдельно для визуализации и не входят в математическую рекурсию статьи. Сравнение ведётся при фиксированной сетке кандидатов — алгоритм статьи не обязан сопровождать сильные изменения ракурса.</p>
     </aside>
   </main>
   <footer class="bottom"><span>● ВИДЕО ОБРАБАТЫВАЕТСЯ НА УСТРОЙСТВЕ</span><span class="bottom-hint">Перетащи рамку вокруг предмета · Лучше работают предметы с деталями</span></footer>
 </div>
 <div id="shade" class="shade hidden"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Проверка на обычном предмете</h2><ol><li>Открой «Камера» и разреши доступ.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Медленно обходи неподвижный предмет. Рамка следует за точками внутри него. Зелёная рамка показывает согласованное движение точек внутри предмета; жёлтая пунктирная рамка означает временную потерю: память сохраняется, начинается поиск во всём кадре.</li><li>Сверху есть отдельные индикаторы: «Геометрия» показывает, как работает трекер по характерным точкам; «Байес» показывает независимый вероятностный поиск по всему кадру. Теперь у каждого канала своя рамка, поэтому их можно сравнивать напрямую.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают предметы с надписями, углами и узорами. При обходе предмета меняются видимые грани: сильный поворот или выход из кадра могут привести к временному поиску. Сайт запоминает характерные точки нескольких успешных ракурсов и пытается найти объект снова, когда он возвращается в кадр. При сильной смене внешнего вида может потребоваться повторный выбор. Панель «Анализ» теперь показывает отдельную рекуррентную байесовскую оценку сходства контуров выделенной области с эталоном. Она не управляет рамкой, а помогает изучать модель вероятностей.</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
+<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Сравнение двух моделей на предмете</h2><ol><li>Открой «Камера» и разреши доступ. Для математического алгоритма выбранный исходный кадр становится эталоном.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Медленно обходи неподвижный предмет. Рамка следует за точками внутри него. Зелёная рамка показывает согласованное движение точек внутри предмета; жёлтая пунктирная рамка означает временную потерю: память сохраняется, начинается поиск во всём кадре.</li><li>Зелёная рамка обозначает геометрический трекер. Голубая — результат исходной математической рекурсии статьи на фиксированной сетке кандидатов. Её вероятность — условная вероятность первой структуры, а не вероятность наличия предмета. Сильная смена ракурса нарушает предположение о фиксированных пикселях.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают предметы с надписями, углами и узорами. При обходе предмета меняются видимые грани: сильный поворот или выход из кадра могут привести к временному поиску. Сайт запоминает характерные точки нескольких успешных ракурсов и пытается найти объект снова, когда он возвращается в кадр. При сильной смене внешнего вида может потребоваться повторный выбор. Панель «Анализ» показывает сумму накопленных апостериорных вероятностей, число кандидатов и время одного вычисления. В исходном MATLAB отсутствует явный механизм состояния «объект отсутствует».</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
 <video id="video" playsinline autoplay muted style="display:none"></video>
 <script>
 // ===== vision.js =====
@@ -669,305 +672,7 @@ function trackObject(imageData,width,height,tracker){
 }
 
 
-// ===== bayes.js =====
-/**
- * FRAME LAB — educational Bayesian contour-appearance monitor.
- *
- * Reproduces the GENERAL IDEAS (not the weapon-target-selection equations)
- * of the user's scientific paper: normalized Sobel gradient ->
- * method-of-moments beta density -> recursively updated posterior under a
- * two-state stochastic structure.
- *
- * This module NEVER selects an object's coordinates. The standalone civilian
- * geometric tracker proposes the ROI; this module only evaluates how similar
- * its edge-intensity distribution is to that of the user-selected reference.
- *
- * Probabilities are MODEL-CONDITIONAL and NOT calibrated detection scores.
- */
-
-const LANCZOS=[0.99999999999980993,676.5203681218851,-1259.1392167224028,
-  771.32342877765313,-176.61502916214059,12.507343278686905,
-  -0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
-
-function logGamma(z){
- if(!Number.isFinite(z)||z<=0)throw new RangeError('Gamma requires positive z');
- if(z<.5)return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-logGamma(1-z);
- z-=1;let x=LANCZOS[0];for(let i=1;i<LANCZOS.length;i++)x+=LANCZOS[i]/(z+i);
- const t=z+7.5;return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x);
-}
-function betaLogPdf(x, fit){
- if(!fit || !(fit.alpha>0&&fit.beta>0))return NaN;
- // Sobel intensities are quantized to 8 bits. A centered-bin convention
- // prevents singular beta densities at exact 0 or 1.
- const v=Math.min(1-1/512,Math.max(1/512,x));
- return (fit.alpha-1)*Math.log(v)+(fit.beta-1)*Math.log1p(-v)
-   -logGamma(fit.alpha)-logGamma(fit.beta)+logGamma(fit.alpha+fit.beta);
-}
-function fitBetaSamples(values){
- if(!values||values.length<12)return null;
- let mean=0,m2=0,n=0;
- for(const raw of values){
-  if(!Number.isFinite(raw))continue;
-  const x=Math.min(1-1/512,Math.max(1/512,raw));n++;
-  const diff=x-mean;mean+=diff/n;m2+=diff*(x-mean);
- }
- if(n<12)return null;
- const variance=m2/n, maxVar=mean*(1-mean);
- if(!(mean>0&&mean<1&&variance>1e-10&&variance<maxVar))return null;
- const common=maxVar/variance-1;
- return {alpha:mean*common,beta:(1-mean)*common,mean,variance,n};
-}
-function within(poly,x,y){
- let hit=false;
- for(let i=0,j=poly.length-1;i<poly.length;j=i++){
-  const a=poly[i],b=poly[j];
-  if((a.y>y)!==(b.y>y) && x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)hit=!hit;
- }return hit;
-}
-/** Collect a spatially spread finite set of contour intensities.
- * background=true samples the outer box, excluding the selected polygon.
- * This is not a segmentation model and does not adapt the reference online.
- */
-function sampleEdgeRegion(edgePixels,w,h,polygon,background=false){
- if(!edgePixels||!polygon||polygon.length<3)return [];
- const xs=polygon.map(p=>p.x),ys=polygon.map(p=>p.y);
- const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
- const bw=Math.max(1,right-left),bh=Math.max(1,bottom-top);
- const extraX=background?bw*.85:0,extraY=background?bh*.85:0;
- const x0=Math.max(0,Math.floor(left-extraX)),x1=Math.min(w-1,Math.ceil(right+extraX));
- const y0=Math.max(0,Math.floor(top-extraY)),y1=Math.min(h-1,Math.ceil(bottom+extraY));
- // Deterministic sparse spatial sampling reduces redundant adjacent pixels.
- const step=Math.max(2,Math.ceil(Math.sqrt((x1-x0+1)*(y1-y0+1)/105)));
- const samples=[];
- for(let y=y0;y<=y1;y+=step)for(let x=x0;x<=x1;x+=step){
-  if(within(polygon,x+.5,y+.5)===background)continue;
-  const value=edgePixels[y*w+x];
-  if(Number.isFinite(value))samples.push((value+.5)/256);
- }
- return samples;
-}
-/** Start with P(same-appearance)=0.5; no false claim of calibration. */
-function createBetaBelief(edgePixels,w,h,polygon){
- const objectSamples=sampleEdgeRegion(edgePixels,w,h,polygon,false);
- const backgroundSamples=sampleEdgeRegion(edgePixels,w,h,polygon,true);
- const signal=fitBetaSamples(objectSamples),background=fitBetaSamples(backgroundSamples);
- return {signal,background,p:.5,logEvidence:null,history:[.5],
-  samplesObject:objectSamples.length,samplesBackground:backgroundSamples.length,
-  observed:false,steps:0,valid:!!(signal&&background)};
-}
-function bayesBinaryUpdate(prior,logLR){
- if(!(prior>=0&&prior<=1)||!Number.isFinite(logLR))throw new RangeError('Invalid Bayesian evidence');
- const p=Math.max(1e-12,Math.min(1-1e-12,prior));
- const logit=Math.log(p)-Math.log1p(-p)+logLR;
- return logit>=0?1/(1+Math.exp(-logit)):Math.exp(logit)/(1+Math.exp(logit));
-}
-/** Pure two-state Markov prediction.
- * switchProbability is an explicit externally chosen assumption, not from paper.
- */
-function predictBinaryBelief(p,switchProbability=.025){
- if(!(p>=0&&p<=1)||!(switchProbability>=0&&switchProbability<=.5))throw new RangeError('Bad transition');
- return (1-switchProbability)*p+switchProbability*(1-p);
-}
-/**
- * Update using geometric-mean Bayes factor from observed Sobel values.
- * Using the mean rather than product avoids treating adjacent correlated pixels
- * as dozens of independent observations. This is a model approximation.
- * If no ROI is available: prediction only, NEVER inspect last known position.
- */
-function updateBetaBelief(model,edgePixels,w,h,polygon){
- if(!model)return null;
- const prior=predictBinaryBelief(model.p);
- const samples=polygon&&model.valid?sampleEdgeRegion(edgePixels,w,h,polygon,false):[];
- let evidence=null;
- if(samples.length>=12){
-  let sum=0,n=0;
-  for(const value of samples){const d=betaLogPdf(value,model.signal)-betaLogPdf(value,model.background);
-   if(Number.isFinite(d)){sum+=d;n++;}}
-  if(n>=12)evidence=Math.max(-6,Math.min(6,sum/n));
- }
- model.observed=evidence!==null;
- model.logEvidence=evidence;
- model.p=evidence===null?prior:bayesBinaryUpdate(prior,evidence);
- model.steps++;model.history.push(model.p);
- if(model.history.length>120)model.history.shift();
- return model;
-}
-
-/** UI interpretation of two SEPARATE diagnostic channels.
- * The beta monitor does NOT localize a candidate by itself; an observed
- * contour score exists only when the geometric tracker supplied a live ROI.
- * A high predicted posterior without pixels is never a detection.
- * The 0.5 boundary is the neutral equal-cost decision rule, not calibration.
- */
-function describeDetectorIndicators(geometry,belief){
- const geometryState=!geometry?'idle':geometry.found?(geometry.recovered?'recovered':'found'):'search';
- const geometryText={idle:'НЕ ВЫБРАН',found:'НАЙДЕН',recovered:'ВОССТАНОВЛЕН',search:'ИЩЕТ'}[geometryState];
- let bayesState='idle',bayesText='НЕТ МОДЕЛИ';
- if(belief){
-  if(!belief.valid){bayesState='unavailable';bayesText='НЕТ МОДЕЛИ';}
-  else if(!geometry?.found || !belief.observed || !Number.isFinite(belief.logEvidence)){
-   bayesState='no-measurement';bayesText='НЕТ ИЗМЕРЕНИЯ';
-  }else if(belief.p>=0.5){bayesState='match';bayesText='СХОДНО';}
-  else {bayesState='mismatch';bayesText='НЕ СХОДНО';}
- }
- const probability=belief&&Number.isFinite(belief.p)?Math.round(belief.p*100):null;
- return {
-  geometry:{state:geometryState,text:geometryText},
-  bayes:{state:bayesState,text:bayesText,probability,
-   // A numerical prior/prediction may be shown in diagnostics, not as a detection.
-   liveProbability:bayesState==='match'||bayesState==='mismatch'?probability:null}
- };
-}
-
-
-// ===== bayes_search.js =====
-
-const SCALES=[0.85,1,1.18];
-const CELLS=2, PER_CELL=4, NC=6, SWITCH=0.04, ALPHA=1;
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const sigmoid=x=>x>=0?1/(1+Math.exp(-x)):Math.exp(x)/(1+Math.exp(x));
-const logit=p=>Math.log(p/(1-p));
-const bin=v=>clamp(Math.floor(v*NC/256),0,NC-1);
-const rectPolygon=b=>[{x:b.x,y:b.y},{x:b.x+b.w,y:b.y},{x:b.x+b.w,y:b.y+b.h},{x:b.x,y:b.y+b.h}];
-
-function intersect(a,b){const l=Math.max(a.x,b.x),t=Math.max(a.y,b.y),r=Math.min(a.x+a.w,b.x+b.w),d=Math.min(a.y+a.h,b.y+b.h);return Math.max(0,r-l)*Math.max(0,d-t);} 
-function hist(){return new Float64Array(NC)}
-function sum(arr){let s=0;for(const v of arr)s+=v;return s;}
-function iou(a,b){if(!a||!b)return 0;const inter=intersect(a,b);const ua=a.w*a.h+b.w*b.h-inter;return ua>0?inter/ua:0;}
-function collect(img,edge,W,H,b,perCell=true){
- const rgb=img.data??img,cells=[],edgeVals=[];const parts=perCell?CELLS:1;
- for(let cy=0;cy<parts;cy++)for(let cx=0;cx<parts;cx++){
-  const red=hist(),green=hist(),blue=hist(),bright=hist();let n=0;
-  const grid=perCell?8:16;
-  for(let iy=0;iy<grid;iy++)for(let ix=0;ix<grid;ix++){
-   const x=clamp(Math.floor(b.x+b.w*(cx+(ix+.5)/grid)/parts),0,W-1);
-   const y=clamp(Math.floor(b.y+b.h*(cy+(iy+.5)/grid)/parts),0,H-1);
-   const p=y*W+x,j=p*4;
-   red[bin(rgb[j])]++;green[bin(rgb[j+1])]++;blue[bin(rgb[j+2])]++;
-   bright[bin((rgb[j]+rgb[j+1]+rgb[j+2])/3)]++;
-   edgeVals.push((edge[p]+.5)/256);n++;
-  }
-  cells.push({red,green,blue,bright,n});
- }
- return {cells,edgeVals};
-}
-function categoricalLR(fg,bg){
- const out=new Float32Array(NC);const sfg=sum(fg),sbg=sum(bg);
- for(let b=0;b<NC;b++)out[b]=Math.log((fg[b]+ALPHA)/(sfg+NC*ALPHA))-Math.log((bg[b]+ALPHA)/(sbg+NC*ALPHA));
- return out;
-}
-function createBayesSearchModel(image,edge,W,H,selection){
- const b={x:clamp(Math.round(selection.x),0,W-1),y:clamp(Math.round(selection.y),0,H-1),w:Math.round(selection.w),h:Math.round(selection.h)};
- b.w=clamp(b.w,8,W-b.x);b.h=clamp(b.h,8,H-b.y);
- if(b.w<12||b.h<12)return {error:'Слишком маленькая область. Обведи предмет крупнее.'};
- const fg=collect(image,edge,W,H,b,true);
- const neg={cells:[{red:hist(),green:hist(),blue:hist(),bright:hist(),n:0}],edgeVals:[]};
- const rgb=image.data??image; const step=Math.max(2,Math.round(Math.sqrt(W*H/2000)));
- for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step){
-  if(x>=b.x-2&&x<=b.x+b.w+2&&y>=b.y-2&&y<=b.y+b.h+2)continue;
-  const i=y*W+x,j=i*4,c=neg.cells[0];
-  c.red[bin(rgb[j])]++;c.green[bin(rgb[j+1])]++;c.blue[bin(rgb[j+2])]++;c.bright[bin((rgb[j]+rgb[j+1]+rgb[j+2])/3)]++;c.n++;
-  neg.edgeVals.push((edge[i]+.5)/256);
- }
- if(neg.cells[0].n<24)return {error:'Недостаточно фона вокруг предмета. Уменьши рамку.'};
- const foregroundBeta=fitBetaSamples(fg.edgeVals),backgroundBeta=fitBetaSamples(neg.edgeVals);
- const betaValid=!!(foregroundBeta&&backgroundBeta);
- const edgeLR=new Float32Array(256);
- for(let i=0;i<256;i++)edgeLR[i]=betaValid?clamp(betaLogPdf((i+.5)/256,foregroundBeta)-betaLogPdf((i+.5)/256,backgroundBeta),-4,4):0;
- const tables=fg.cells.map(cell=>({
-  red:categoricalLR(cell.red,neg.cells[0].red),green:categoricalLR(cell.green,neg.cells[0].green),
-  blue:categoricalLR(cell.blue,neg.cells[0].blue),bright:categoricalLR(cell.bright,neg.cells[0].bright)
- }));
- const model={box:b,lastBox:b,reference:b,tables,edgeLR,foregroundBeta,backgroundBeta,betaValid,
-  p:.5,found:true,updated:false,history:[.5],misses:0,frame:0,score:null,scoreGap:null,peak:null,
-  logEvidence:null,threshold:null,params:{SCALES,SWITCH},sampleCounts:{object:fg.edgeVals.length,background:neg.edgeVals.length}};
- const negatives=enumerate(image,edge,W,H,model,1).filter(c=>intersect(c.box,b)<.15*b.w*b.h).map(c=>c.score).sort((a,z)=>a-z);
- if(negatives.length<8)return {error:'Недостаточно свободного фона для оценки ложных совпадений.'};
- model.threshold=negatives[Math.min(negatives.length-1,Math.floor(.97*negatives.length))];
- model.initialScore=candidateScore(image,edge,W,H,model,b);
- return model;
-}
-function candidateScore(img,edge,W,H,model,box){
- const rgba=img.data??img;let sum=0,n=0;
- for(let cy=0;cy<CELLS;cy++)for(let cx=0;cx<CELLS;cx++){
-  const table=model.tables[cy*CELLS+cx];
-  for(let iy=0;iy<PER_CELL;iy++)for(let ix=0;ix<PER_CELL;ix++){
-   const x=clamp(Math.floor(box.x+box.w*(cx+(ix+.5)/PER_CELL)/CELLS),0,W-1);
-   const y=clamp(Math.floor(box.y+box.h*(cy+(iy+.5)/PER_CELL)/CELLS),0,H-1);
-   const p=y*W+x,j=p*4,r=rgba[j],g=rgba[j+1],b=rgba[j+2];
-   const color=(table.red[bin(r)]+table.green[bin(g)]+table.blue[bin(b)]+table.bright[bin((r+g+b)/3)])/4;
-   sum+=.30*model.edgeLR[edge[p]]+.70*color;n++;
-  }
- }
- return sum/n;
-}
-function enumerate(img,edge,W,H,model,scales=3){
- const boxes=[]; const scaleSet=scales===1?[1]:SCALES;
- for(const scale of scaleSet){
-  const w=Math.round(model.box.w*scale),h=Math.round(model.box.h*scale);
-  if(w>=W||h>=H||w<12||h<12)continue;
-  const step=Math.max(4,Math.min(14,Math.round(Math.min(w,h)/3)));
-  const xs=[],ys=[];
-  for(let x=0;x<=W-w;x+=step)xs.push(x); if(xs[xs.length-1]!==W-w)xs.push(W-w);
-  for(let y=0;y<=H-h;y+=step)ys.push(y); if(ys[ys.length-1]!==H-h)ys.push(H-h);
-  for(const y of ys)for(const x of xs){const box={x,y,w,h}; boxes.push({box,score:candidateScore(img,edge,W,H,model,box)});}
- }
- return boxes;
-}
-function percentile(sorted,p){if(!sorted.length)return -Infinity; const idx=Math.min(sorted.length-1,Math.max(0,Math.floor((sorted.length-1)*p))); return sorted[idx];}
-function updateBayesSearch(model,img,edge,W,H){
- if(!model||model.error)return {found:false,error:model?.error??'Не выбрана модель'};
- const pool=enumerate(img,edge,W,H,model); if(!pool.length)return {found:false,error:'Нет кандидатов'};
- const anchor=model.lastBox??model.box; const radius=Math.max(anchor.w,anchor.h)*(model.misses>3?5.5:2.2+model.misses*.7);
- let sumPrior=0;
- for(const item of pool){
-  const dx=item.box.x+item.box.w/2-anchor.x-anchor.w/2, dy=item.box.y+item.box.h/2-anchor.y-anchor.h/2;
-  const localized=Math.exp(-(dx*dx+dy*dy)/(2*radius*radius)); item.spatialPrior=.2+.8*localized; sumPrior+=item.spatialPrior;
- }
- const before=clamp(model.p,1e-6,1-1e-6), prior=SWITCH+(1-2*SWITCH)*before;
- let best=null, second=null, max=-Infinity;
- for(const c of pool){
-  c.logPosterior=(c.score-model.threshold)+Math.log(c.spatialPrior/sumPrior);
-  if(c.logPosterior>max)max=c.logPosterior;
-  if(!best||c.score>best.score){second=best;best=c;} else if(!second||c.score>second.score){second=c;}
- }
- let Z=0; for(const c of pool){c.soft=Math.exp(c.logPosterior-max); Z+=c.soft;}
- const peak=best?best.soft/Z:0;
- const sortedScores=pool.map(c=>c.score).sort((a,b)=>a-b);
- const q95=percentile(sortedScores,.95), q99=percentile(sortedScores,.99);
- // The maximizer of a densely overlapping sliding-window grid never has
- // a large posterior "peak" simply because many adjacent windows share pixels.
- // Do not use that peak as an absolute detection gate.
- const runnerUp=pool.filter(c=>iou(c.box,best.box)<.25).reduce((m,c)=>Math.max(m,c.score),-Infinity);
- const gap=best.score-(Number.isFinite(runnerUp)?runnerUp:q95);
- // With one positive example and one empirical negative reference distribution,
- // use the midpoint of their two scores (explicit equal-cost assumption).
- // This avoids interpreting the largest of hundreds of background windows as a
- // positive just because it is the largest.
- const separation=model.initialScore-model.threshold;
- const boundary=(model.initialScore+model.threshold)/2;
- const margin=best.score-boundary;
- const standout=best.score-q99;
- const coherent=separation>0 && margin>0 && standout>0;
- // Positive evidence is bounded and remains conditional on this weak model.
- // Negative evidence can veto an overconfident prior after object absence.
- let evidence=coherent?clamp(4*margin/Math.max(.1,separation)+2*Math.max(0,gap)/Math.max(.1,separation),0,4)
-                      :-clamp(2+4*Math.max(0,-margin)/Math.max(.1,separation),2,8);
-
- model.p=sigmoid(logit(prior)+evidence);
- model.logEvidence=evidence; model.updated=true; model.frame++; model.score=best.score; model.scoreGap=gap; model.peak=peak; model.q95=q95; model.q99=q99; model.boundary=boundary;
- model.history.push(model.p); if(model.history.length>120)model.history.shift();
- const seen=coherent && model.p>.5;
- model.found=seen;
- if(seen){model.lastBox=best.box; model.misses=0;} else model.misses++;
- return {found:seen, box:seen?best.box:null, lastBox:model.lastBox, posterior:model.p, score:best.score,
-  backgroundThreshold:model.threshold, evidence:model.logEvidence, rank:best.score, peak, tested:pool.length,
-  misses:model.misses, scoreGap:gap, q95, q99, boundary, coherent};
-}
-
-
 // ===== main.js =====
-
 
 
 const $=id=>document.getElementById(id);
@@ -980,30 +685,126 @@ const dctx=demo.getContext('2d');
 const ectx=$('edges').getContext('2d'), hctx=$('hist').getContext('2d'), bhctx=$('bayesHistory').getContext('2d');
 const s={mode:null,stream:null,url:null,facing:'environment',ready:false,frame:null,W:320,H:180,
  tracker:null,geom:null,bayesModel:null,bayesResult:null,selector:null,present:{x:0,y:0,w:0,h:0},
- trailGeom:[],trailBayes:[],fps:0,last:0,lastStat:0,demostart:0,toastTimer:null};
+ trailGeom:[],trailBayes:[],fps:0,last:0,lastStat:0,demostart:0,toastTimer:null,
+ paperSession:0,paperBusy:false,paperInitialized:false,paperWorker:null,paperStats:null,paperMs:null};
 
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(s.toastTimer);s.toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3000);} 
 function cleanup(){if(s.stream){s.stream.getTracks().forEach(t=>t.stop());s.stream=null;}video.pause();video.srcObject=null;video.removeAttribute('src');video.load();if(s.url){URL.revokeObjectURL(s.url);s.url=null;}}
-function resetProbabilityUI(){ $('bayesPercent').textContent='—';$('bayesInline').textContent='—';$('bayesObservation').textContent='Выбери предмет';$('bayesLogLR').textContent='—';$('bayesObjectFit').textContent='—';$('bayesBackgroundFit').textContent='—';$('bayesSampleCounts').textContent='—';$('bayesFill').style.width='0%'; bhctx.clearRect(0,0,320,96); }
-function clearSelection(){s.tracker=null;s.geom=null;s.bayesModel=null;s.bayesResult=null;s.trailGeom=[];s.trailBayes=[];s.selector=null;resetProbabilityUI();$('trackingStatus').textContent='НЕ ВЫБРАН';$('trackingStatus').style.color='';$('trackTitle').textContent='Выдели прямоугольник';$('trackDescription').textContent='Будут построены две независимые рамки: геометрическая и вероятностная.';$('trackScore').textContent='—';$('coords').textContent='X — · Y —';$('confidence').textContent='—';$('instruction').classList.toggle('hidden',!s.mode);paintStatuses();}
-function status(mode){s.mode=mode;const label={camera:'КАМЕРА · ЛОКАЛЬНО',demo:'ДВИЖУЩИЙСЯ ПРИМЕР',file:'ЗАГРУЖЕННОЕ ВИДЕО'};$('sourcePill').textContent=mode?'● '+label[mode]:'● ИСТОЧНИК НЕ ВЫБРАН';$('empty').classList.toggle('hidden',!!mode);$('instruction').classList.toggle('hidden',!mode);$('resolution').textContent='— × —';paintStatuses();}
+function resetProbabilityUI(){
+ $('bayesPercent').textContent='—';$('bayesInline').textContent='—';
+ $('bayesObservation').textContent='Выбери предмет';$('bayesLogLR').textContent='—';
+ $('bayesObjectFit').textContent='—';$('bayesBackgroundFit').textContent='—';
+ $('bayesSampleCounts').textContent='—';$('bayesFill').style.width='0%';
+ bhctx.clearRect(0,0,320,96);
+}
+function clearSelection(){
+ s.paperSession++;s.paperBusy=false;s.paperInitialized=false;s.paperStats=null;s.paperMs=null;
+ s.tracker=null;s.geom=null;s.bayesModel=null;s.bayesResult=null;s.trailGeom=[];s.trailBayes=[];s.selector=null;
+ resetProbabilityUI();$('trackingStatus').textContent='НЕ ВЫБРАН';$('trackingStatus').style.color='';
+ $('trackTitle').textContent='Выдели прямоугольник';
+ $('trackDescription').textContent='Геометрический трекер и математическая рекурсия статьи получат один и тот же исходный фрагмент.';
+ $('trackScore').textContent='—';$('coords').textContent='X — · Y —';$('confidence').textContent='—';
+ $('instruction').classList.toggle('hidden',!s.mode);paintStatuses();
+}
+function status(mode){s.mode=mode;const label={camera:'КАМЕРА · ЛОКАЛЬНО',demo:'ДВИЖУЩИЙСЯ ПРИМЕР',file:'ЗАГРУЖЕННОЕ ВИДЕО'};
+ $('sourcePill').textContent=mode?'● '+label[mode]:'● ИСТОЧНИК НЕ ВЫБРАН';
+ $('empty').classList.toggle('hidden',!!mode);$('instruction').classList.toggle('hidden',!mode);
+ $('resolution').textContent='— × —';paintStatuses();
+}
 function stop(){cleanup();s.ready=false;s.frame=null;status(null);clearSelection();paintIdle();$('rate').textContent='—';}
-function redrawBayesHistory(model){ const c=$('bayesHistory'),ctx=bhctx,w=c.width,h=c.height; ctx.clearRect(0,0,w,h); ctx.fillStyle='#0a1a24'; ctx.fillRect(0,0,w,h); ctx.strokeStyle='#29434a'; ctx.lineWidth=1; for(const p of [.25,.5,.75]){ctx.beginPath();ctx.moveTo(0,h*(1-p));ctx.lineTo(w,h*(1-p));ctx.stroke();} if(!model?.history?.length)return; ctx.strokeStyle='#7fdaff'; ctx.lineWidth=2; ctx.beginPath(); model.history.forEach((p,i)=>{const x=model.history.length<=1?0:i*(w-1)/(model.history.length-1),y=(1-p)*(h-1); i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); ctx.stroke(); ctx.fillStyle='#aac9bd'; ctx.font='10px system-ui'; ctx.fillText('1',4,12); ctx.fillText('0',4,h-5);} 
+function redrawBayesHistory(model){
+ const c=$('bayesHistory'),cc=bhctx,w=c.width,h=c.height;
+ cc.clearRect(0,0,w,h);cc.fillStyle='#0a1a24';cc.fillRect(0,0,w,h);
+ cc.strokeStyle='#29434a';cc.lineWidth=1;
+ for(const p of [.25,.5,.75]){cc.beginPath();cc.moveTo(0,h*(1-p));cc.lineTo(w,h*(1-p));cc.stroke();}
+ if(!model?.history?.length)return;
+ cc.strokeStyle='#7fdaff';cc.lineWidth=2;cc.beginPath();
+ model.history.forEach((p,i)=>{const x=model.history.length<=1?0:i*(w-1)/(model.history.length-1),y=(1-p)*(h-1);i?cc.lineTo(x,y):cc.moveTo(x,y);});cc.stroke();
+ cc.fillStyle='#aac9bd';cc.font='10px system-ui';cc.fillText('1',4,12);cc.fillText('0',4,h-5);
+}
 function paintStatuses(){
-  const g=s.geom; const b=s.bayesResult;
-  let gs='idle', gt='НЕ ВЫБРАН';
-  if(s.tracker){ if(g?.found) { gs=g.recovered?'recovered':'found'; gt=g.recovered?'ВОССТАНОВЛЕН':'НАЙДЕН'; } else { gs='search'; gt='ИЩЕТ'; } }
-  $('geometryBadge').dataset.state=gs; $('trackingPill').textContent=gt;
-  let bs='idle', bt='НЕТ МОДЕЛИ', prob=null;
-  if(s.bayesModel){ prob=Number.isFinite(s.bayesModel.p)?Math.round(s.bayesModel.p*100):null; if(b?.found){bs='match';bt='НАЙДЕН';} else {bs='search';bt='ИЩЕТ';} }
-  $('bayesBadge').dataset.state=bs; $('bayesDetection').textContent=bt; $('bayesBadgeValue').textContent=prob===null?'':`${prob}%`; $('bayesPanelStatus').textContent=bt; $('bayesInline').textContent=prob===null?'—':`${prob}%`;
-  $('bayesMeaning').textContent=!s.bayesModel?'Выбери предмет, чтобы запустить независимый вероятностный поиск.': b?.found ? 'Байесовский канал сам выбрал координаты прямоугольника и считает его похожим на предмет.' : 'Байесовский канал не нашёл достаточно убедительный кандидат. Процент в панели — внутренняя оценка модели, а не гарантия обнаружения.';
+ const g=s.geom,b=s.bayesResult;
+ let gs='idle',gt='НЕ ВЫБРАН';
+ if(s.tracker){if(g?.found){gs=g.recovered?'recovered':'found';gt=g.recovered?'ВОССТАНОВЛЕН':'НАЙДЕН';}else{gs='search';gt='ИЩЕТ';}}
+ $('geometryBadge').dataset.state=gs;$('trackingPill').textContent=gt;
+ let bs='idle',bt='НЕТ МОДЕЛИ';
+ if(s.bayesModel){
+  if(!s.paperInitialized){bs='search';bt='ПОДГОТОВКА';}
+  else if(b?.error){bs='unavailable';bt='НЕТ ДАННЫХ';}
+  else if(b?.found){bs='match';bt='ВЫБРАН ФРАГМЕНТ';}
+  else {bs='search';bt='НЕТ ОЦЕНКИ';}
+ }
+ $('bayesBadge').dataset.state=bs;$('bayesDetection').textContent=bt;
+ const prob=b?.posteriorValid&&Number.isFinite(b?.posterior)?`${(b.posterior*100).toFixed(1)}%`:'P1: некорр.';
+ $('bayesBadgeValue').textContent=b?prob:'';$('bayesPanelStatus').textContent=bt;
+ $('bayesInline').textContent=prob||'—';
+ $('bayesMeaning').textContent=!s.bayesModel?'Выбери предмет, чтобы выполнить исходную байесовскую рекурсию из MATLAB.':
+   !s.paperInitialized?'Сохраняется контурный эталон и состояния двух структур для всех кандидатов.':
+   b?.error?b.error:
+   'Показана апостериорная вероятность первой структуры УЖЕ ВЫБРАННОГО фрагмента, а не вероятность существования предмета. Алгоритм статьи не имеет отдельного состояния «объект отсутствует».';
 }
 function probabilityDiagnostics(){
-  if(!s.bayesModel){resetProbabilityUI();paintStatuses();return;}
-  const m=s.bayesModel, r=s.bayesResult; const prob=Number.isFinite(m.p)?Math.min(99.9,m.p*100).toFixed(1):null;
-  $('bayesPercent').textContent=prob===null?'—':`${prob}%`; $('bayesInline').textContent=prob===null?'—':`${prob}%`; $('bayesObservation').textContent=r?.found?'Найдено независимым поиском':'Поиск по всему кадру'; $('bayesLogLR').textContent=Number.isFinite(m.logEvidence)?m.logEvidence.toFixed(3):'—';
-  const fmt=f=>f?`${f.alpha.toFixed(2)} / ${f.beta.toFixed(2)}`:'не определено'; $('bayesObjectFit').textContent=fmt(m.foregroundBeta); $('bayesBackgroundFit').textContent=fmt(m.backgroundBeta); $('bayesSampleCounts').textContent=`${m.sampleCounts.object} / ${m.sampleCounts.background}`; $('bayesFill').style.width=prob===null?'0%':`${prob}%`; $('bayesFill').style.background=(r?.found)?'#7fdaff':'#fbc57b'; redrawBayesHistory(m); paintStatuses(); }
+ if(!s.bayesModel){resetProbabilityUI();paintStatuses();return;}
+ const m=s.bayesModel,r=s.bayesResult,prob=r?.posteriorValid&&Number.isFinite(r?.posterior)?r.posterior*100:null;
+ $('bayesPercent').textContent=prob===null?(r?.found?'P1 неверна':'—'):`${prob.toFixed(1)}%`;
+ $('bayesObservation').textContent=r?.found?`Кадр ${r.frame} · ${r.evaluated}/${r.candidates} областей · вне [0,1]: ${r.nonProbability}`:(m.error||'Подготовка или нет решения');
+ $('bayesLogLR').textContent=Number.isFinite(r?.score)?r.score.toFixed(4):'—';
+ const fmt=(mean,v)=>Number.isFinite(mean)&&Number.isFinite(v)?`${mean.toFixed(3)} / ${v.toFixed(4)}`:'—';
+ $('bayesObjectFit').textContent=fmt(s.paperStats?.signalMean,s.paperStats?.signalVar);
+ $('bayesBackgroundFit').textContent=fmt(s.paperStats?.backgroundMean,s.paperStats?.backgroundVar);
+ $('bayesSampleCounts').textContent=s.paperStats?`${s.paperStats.Q} / ${s.paperStats.range.rows*s.paperStats.range.cols}`:'—';
+ $('bayesFill').style.width=prob===null?'0%':`${Math.max(0,Math.min(100,prob))}%`;
+ $('bayesFill').style.background='#7fdaff';
+ $('paperPerf').textContent=s.paperMs===null?'—':`${s.paperMs.toFixed(1)} мс`;
+ redrawBayesHistory(m);paintStatuses();
+}
+const PAPER_WORKER_SOURCE="/**\n * Literal mathematical recursion of the supplied MATLAB 'matlab_reference.m'\n * for a fixed-grid image-fragment comparison (general laboratory imagery).\n * The coefficients, beta-moment equations, two structural hypotheses,\n * SUM of per-pixel likelihoods, prior p1=p2=0.5 and accumulated S1 score\n * correspond to the source. This is NOT the earlier color-likelihood model.\n *\n * Three explicit browser adapters are NOT from the source script:\n *   pixel input instead of hardcoded paths/mat file,\n *   candidate scan region from the user-chosen box,\n *   repeated real camera observations instead of duplicated k2 arrays.\n */\nconst PAPER={edgeThreshold:.4, currentThreshold:.2, p01:.5,p02:.5,bb:1,\n  initMax:.5,referenceBoxInclusive:true};\nconst finite=x=>Number.isFinite(x);\nconst clamp=(v,a,b)=>Math.min(b,Math.max(a,v));\n\n/** MATLAB rgb2gray uint8 approximation: weighted conversion rounded to uint8. */\nfunction grayscale(raw,w,h){\n const rgb=raw.data??raw;\n const out=new Float64Array(w*h);\n for(let i=0;i<out.length;i++){\n  const p=i*4;\n  out[i]=Math.round(.29893602129377539*rgb[p]+.58704307445112136*rgb[p+1]+.11402090425510326*rgb[p+2]);\n }\n return out;\n}\n/** 5x5 all-ones imfilter(...,'replicate'), no divide by 25 (as MATLAB). */\nfunction filter5(src,w,h){\n const row=new Float64Array(w*h),out=new Float64Array(w*h);\n for(let y=0;y<h;y++)for(let x=0;x<w;x++){\n  let v=0;for(let dx=-2;dx<=2;dx++)v+=src[y*w+clamp(x+dx,0,w-1)];\n  row[y*w+x]=v;\n }\n for(let y=0;y<h;y++)for(let x=0;x<w;x++){\n  let v=0;for(let dy=-2;dy<=2;dy++)v+=row[clamp(y+dy,0,h-1)*w+x];\n  out[y*w+x]=v;\n }\n return out;\n}\nfunction sobelMagnitude(src,w,h){\n const out=new Float64Array(w*h);\n for(let y=0;y<h;y++)for(let x=0;x<w;x++){\n  const xm=clamp(x-1,0,w-1),xp=clamp(x+1,0,w-1);\n  const ym=clamp(y-1,0,h-1),yp=clamp(y+1,0,h-1);\n  const a=src[ym*w+xm],b=src[ym*w+x],c=src[ym*w+xp];\n  const d=src[y*w+xm],f=src[y*w+xp];\n  const g=src[yp*w+xm],i=src[yp*w+x],j=src[yp*w+xp];\n  const s1=a+2*d+g-c-2*f-j;\n  const s2=-(a+2*b+c)+g+2*i+j;\n  out[y*w+x]=Math.hypot(s1,s2);\n }\n return out;\n}\nfunction normalize01(src){\n let lo=Infinity,hi=-Infinity;\n for(const v of src){if(v<lo)lo=v;if(v>hi)hi=v;}\n if(!finite(lo)||!finite(hi)||hi===lo)return {error:'Однородное изображение: невозможно нормировать Собеля (max=min).'};\n const out=new Float64Array(src.length),scale=1/(hi-lo);\n for(let i=0;i<out.length;i++)out[i]=(src[i]-lo)*scale;\n return {data:out,min:lo,max:hi};\n}\nfunction preprocess(raw,w,h,iterations){\n let g=grayscale(raw,w,h);\n for(let i=0;i<iterations;i++)g=filter5(g,w,h);\n const magnitude=sobelMagnitude(g,w,h),normalized=normalize01(magnitude);\n if(normalized.error)return normalized;\n return normalized;\n}\nfunction sampleMoments(arr,condition){\n let n=0,mean=0,m2=0;\n for(const x of arr){if(condition&&!condition(x))continue;n++; const delta=x-mean;mean+=delta/n;m2+=delta*(x-mean);}\n return {n,mean,variance:n>1?m2/(n-1):NaN};\n}\nfunction getReference(raw,w,h,box){\n const pre=preprocess(raw,w,h,3);\n if(pre.error)return pre;\n const {data}=pre,b=PAPER.edgeThreshold;\n const signal=sampleMoments(data,v=>v>b),background=sampleMoments(data,v=>v<b);\n if(signal.n<2||background.n<2||signal.variance<=0||background.variance<=0)\n  return {error:'Для исходной статистики недостаточно контурных и фоновых пикселей.'};\n const points=[];\n const x0=clamp(Math.round(box.x),0,w-1),y0=clamp(Math.round(box.y),0,h-1);\n const ww=clamp(Math.round(box.w),1,w-x0),hh=clamp(Math.round(box.h),1,h-y0);\n // MATLAB reference fragment i0e:i0e+a and j0e:j0e+c is inclusive;\n // the UI rectangle has width/height in pixels so the selected extent matches it.\n // MATLAB find() enumerates qualifying elements in column-major order.\n for(let x=0;x<ww;x++)for(let y=0;y<hh;y++){\n  const value=data[(y0+y)*w+(x0+x)];\n  if(value>b)points.push({x,y,value});\n }\n if(points.length<3)return {error:'Внутри рамки почти нет контуров выше порога 0,4. Укажи детализированный предмет.'};\n return {width:w,height:h,box:{x:x0,y:y0,w:ww,h:hh},points,\n  signal,background,threshold:b,pre};\n}\nfunction getObservation(raw,w,h,referenceSignalMean){\n const pre=preprocess(raw,w,h,2);\n if(pre.error)return pre;\n const data=pre.data,bt=PAPER.currentThreshold;\n const high=sampleMoments(data,v=>v>bt),low=sampleMoments(data,v=>v<bt);\n if(high.n<2||low.n<2||!finite(high.variance)||!finite(low.variance))\n  return {error:'Для текущего изображения недостаточно пикселей по обе стороны порога 0,2.'};\n const shift=referenceSignalMean-high.mean;\n const shifted=new Float64Array(data.length);\n for(let i=0;i<data.length;i++)shifted[i]=data[i]+shift; // Literal MATLAB I_0_12 + (mc-mct), no clamp.\n return {data:shifted,high,low,shift,pre};\n}\n/** Exact f,X,W algebra from f1,X1,W1 in the MATLAB loop, via beta moments. */\nfunction momentsUpdate(mu,theta,increment,z){\n const thetaPred=theta+increment;\n const variance=thetaPred-mu*mu;\n if(!finite(variance)||variance===0)return {invalid:true};\n const gamma=mu*(1-mu)/variance-1;\n const alpha=mu*gamma;\n if(!finite(gamma)||!finite(alpha)||!finite(z))return {invalid:true};\n if(gamma===0||gamma===-1||gamma===-2||gamma===-3)return {invalid:true};\n const e1=alpha/gamma;\n const e2=e1*(alpha+1)/(gamma+1);\n const e3=e2*(alpha+2)/(gamma+2);\n const e4=e3*(alpha+3)/(gamma+3);\n const c0=.75*(1-z*z),c1=1.5*z,c2=-.75;\n const f=c0+c1*e1+c2*e2;\n const X=c0*e1+c1*e2+c2*e3;\n const V=c0*e2+c1*e3+c2*e4;\n const nextMu=X/f,nextTheta=V/f;\n if(!finite(f)||!finite(nextMu)||!finite(nextTheta)||f===0)return {invalid:true};\n return {f,mu:nextMu,theta:nextTheta,variance,gamma,alpha,c0,c1,c2};\n}\n/** Search grid is the input of the original fragment-index formulation (H,M). */\nfunction createState(reference,observation,range){\n if(reference.error||observation.error)return {error:reference.error||observation.error};\n const {width:w,height:h,box,points,signal,background}=reference;\n // The rectangular fragment left-top (i0+h,j0+m) is constant across frames.\n const xmin=clamp(box.x-Math.floor(range/2),0,w-box.w),ymin=clamp(box.y-Math.floor(range/2),0,h-box.h);\n const xmax=clamp(xmin+range,0,w-box.w),ymax=clamp(ymin+range,0,h-box.h);\n const cols=xmax-xmin+1,rows=ymax-ymin+1,classes=cols*rows,Q=points.length;\n if(classes<=0)return {error:'Неверная область поиска.'};\n // Note the exact MATLAB indexing: i=ic(q)+i0+h and j=jc(q)+j0+m,\n // with ic,jc starting at 1. In 0-based memory this samples box origin+offset+1.\n // Candidates touching the last pixel therefore need one extra boundary pixel.\n const qx=new Int16Array(Q),qy=new Int16Array(Q);\n for(let i=0;i<Q;i++){qx[i]=points[i].x;qy[i]=points[i].y;}\n const count=Q*classes;\n const mu1=new Float64Array(count),mu2=new Float64Array(count),th1=new Float64Array(count),th2=new Float64Array(count);\n mu1.fill(signal.mean);mu2.fill(background.mean);\n th1.fill(signal.variance+signal.mean**2);\n // MATLAB initializes theta2 = Rft + mft², Rft from current image, not ref.\n th2.fill(observation.low.variance+background.mean**2);\n const prob1=new Float64Array(classes),prob2=new Float64Array(classes),score=new Float64Array(classes);\n prob1.fill(.5);prob2.fill(.5);\n return {w,h,box,range:{xmin,xmax,ymin,ymax,cols,rows},Q,qx,qy,mu1,mu2,th1,th2,prob1,prob2,score,\n  Rc:signal.variance,Rct:observation.high.variance,Rft:observation.low.variance,\n  referenceMean:signal.mean,frame:0,scoreMax:.5,selected:null,invalid:0};\n}\n/** One sequential frame of the literal source recursion; candidate states persist. */\nfunction stepArticle(state,observation){\n if(observation.error)return {found:false,error:observation.error};\n const {w,h,range,Q,qx,qy,mu1,mu2,th1,th2,prob1,prob2,score,Rct,Rft}=state;\n let evaluated=0,invalid=0,active=0,bestIndex=-1,nonProbability=0;\n let bestScore=state.scoreMax; const data=observation.data;\n for(let r=0;r<range.rows;r++)for(let c=0;c<range.cols;c++){\n  const pos=r*range.cols+c;const base=pos*Q;\n  const top=range.ymin+r,left=range.xmin+c;\n  let sumF1=0,sumF2=0,ok=true;\n  for(let q=0;q<Q;q++){\n   // As in MATLAB, local indices ic,jc are 1-based and added to i0,j0.\n   const x=left+qx[q]+1,y=top+qy[q]+1;\n   if(x<0||x>=w||y<0||y>=h){ok=false;break;}\n   const z=data[y*w+x]; const p=base+q;\n   const v1=momentsUpdate(mu1[p],th1[p],Rct,z);\n   const v2=momentsUpdate(mu2[p],th2[p],Rft,z);\n   if(v1.invalid||v2.invalid){ok=false;break;}\n   // Exact MATLAB stores the updated moment states and sums f_q, not product.\n   mu1[p]=v1.mu;mu2[p]=v2.mu;th1[p]=v1.theta;th2[p]=v2.theta;\n   sumF1+=v1.f;sumF2+=v2.f;\n  }\n  if(!ok){invalid++;continue;}\n  const norm=prob1[pos]*sumF1+prob2[pos]*sumF2;\n  if(!finite(norm)||norm===0){invalid++;continue;}\n  const next1=prob1[pos]*sumF1/norm,next2=prob2[pos]*sumF2/norm;\n  if(!finite(next1)||!finite(next2)){invalid++;continue;}\n  prob1[pos]=next1;prob2[pos]=next2;\n  if(next1<0||next1>1||next2<0||next2>1)nonProbability++;\n  evaluated++;\n  if(next1>next2){\n   active++;score[pos]+=next1;\n   if(score[pos]>=bestScore){bestScore=score[pos];bestIndex=pos;}\n  }\n }\n state.invalid+=invalid;state.frame++;\n // MATLAB S1cir_max monotonically increases; if no new maximum, hold old location.\n if(bestIndex>=0){state.scoreMax=bestScore;state.selected=bestIndex;}\n const ix=state.selected;\n const found=ix!==null;\n const x=found?range.xmin+ix%range.cols:null,y=found?range.ymin+Math.floor(ix/range.cols):null;\n return {found,box:found?{x,y,w:state.box.w,h:state.box.h}:null,score:state.scoreMax,\n  posterior:found?state.prob1[ix]:null,posteriorValid:found&&state.prob1[ix]>=0&&state.prob1[ix]<=1,\n  nonProbability,frame:state.frame,evaluated,invalid,active,\n  candidates:range.rows*range.cols,Q,range:state.range,\n  note:'Накопленный максимум соответствует алгоритму MATLAB; отсутствие объекта отдельно не моделируется.'};\n}\n\n/* Isolated browser worker; pure article_core.js is inlined in the one-file build. */\nlet articleState=null;\nlet reference=null;\nlet sessionId=0;\nself.onmessage=(event)=>{\n const m=event.data;\n const now=performance.now();\n try{\n  if(m.type==='initialize'){\n   sessionId=m.session;\n   const raw=new Uint8ClampedArray(m.buffer);\n   reference=getReference(raw,m.w,m.h,m.box);\n   if(reference.error){self.postMessage({type:'error',session:sessionId,error:reference.error});return;}\n   const first=getObservation(raw,m.w,m.h,reference.signal.mean);\n   if(first.error){self.postMessage({type:'error',session:sessionId,error:first.error});return;}\n   articleState=createState(reference,first,m.range);\n   if(articleState.error){self.postMessage({type:'error',session:sessionId,error:articleState.error});return;}\n   self.postMessage({type:'initialized',session:sessionId,stats:{Q:reference.points.length,range:articleState.range,\n    signalMean:reference.signal.mean,signalVar:reference.signal.variance,\n    backgroundMean:reference.background.mean,backgroundVar:reference.background.variance,\n    currentSignalVar:first.high.variance,currentBackgroundVar:first.low.variance,\n    initMs:performance.now()-now}});\n   return;\n  }\n  if(m.type==='frame'&&articleState&&m.session===sessionId){\n   const obs=getObservation(new Uint8ClampedArray(m.buffer),m.w,m.h,reference.signal.mean);\n   const outcome=stepArticle(articleState,obs);\n   self.postMessage({type:'result',session:sessionId,result:outcome,ms:performance.now()-now});\n  }\n }catch(error){self.postMessage({type:'error',session:sessionId,error:String(error?.message??error)});}\n};\n";
+function ensurePaperWorker(){
+ if(s.paperWorker)return s.paperWorker;
+ if(typeof Worker==='undefined'){toast('Для математического алгоритма нужен браузер с Web Worker.');return null;}
+ const url=URL.createObjectURL(new Blob([PAPER_WORKER_SOURCE],{type:'text/javascript'}));
+ const worker=new Worker(url);URL.revokeObjectURL(url);
+ worker.onmessage=({data:m})=>{
+  if(m.session!==s.paperSession)return;
+  s.paperBusy=false;
+  if(m.type==='error'){
+   s.paperInitialized=false;
+   if(s.bayesModel)s.bayesModel.error=m.error;
+   s.bayesResult={found:false,error:m.error};toast('Исходный алгоритм: '+m.error);probabilityDiagnostics();return;
+  }
+  if(m.type==='initialized'){
+   s.paperInitialized=true;s.paperStats=m.stats;s.paperMs=m.stats.initMs;
+   if(s.bayesModel)s.bayesModel.error=null;
+   probabilityDiagnostics();return;
+  }
+  if(m.type==='result'){
+   s.paperMs=m.ms;s.bayesResult=m.result;
+   if(m.result.posteriorValid&&Number.isFinite(m.result.posterior)){
+    s.bayesModel.history.push(m.result.posterior);
+    if(s.bayesModel.history.length>120)s.bayesModel.history.shift();
+   }
+   if(m.result.found){const b=m.result.box;
+    s.trailBayes.push({x:b.x+b.w/2,y:b.y+b.h/2});
+    if(s.trailBayes.length>38)s.trailBayes.shift();
+   }
+   probabilityDiagnostics();
+  }
+ };
+ worker.onerror=(e)=>{s.paperBusy=false;s.paperInitialized=false;console.error('Article worker:',e);toast('Ошибка потока вычисления алгоритма статьи.');};
+ s.paperWorker=worker;return worker;
+}
+function sendArticleInit(box){
+ const worker=ensurePaperWorker();if(!worker)return;
+ s.paperSession++;s.paperBusy=true;s.paperInitialized=false;
+ const bytes=s.frame.data.slice(),range=Number($('scanRange').value);
+ worker.postMessage({type:'initialize',session:s.paperSession,w:s.W,h:s.H,box,range,buffer:bytes.buffer},[bytes.buffer]);
+}
+function updateArticleFrame(){
+ if(!s.paperInitialized||s.paperBusy||!s.frame)return;
+ const worker=ensurePaperWorker();if(!worker)return;
+ s.paperBusy=true;const bytes=s.frame.data.slice();
+ worker.postMessage({type:'frame',session:s.paperSession,w:s.W,h:s.H,buffer:bytes.buffer},[bytes.buffer]);
+}
 
 async function startCamera(){ if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){toast('Для камеры нужен HTTPS или localhost.');return;} cleanup(); clearSelection(); try{const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:s.facing},width:{ideal:1280},height:{ideal:720}}}); s.stream=stream; video.srcObject=stream; video.muted=true; video.playsInline=true; await video.play(); status('camera'); s.ready=true; toast('Камера включена. Обведи предмет рамкой.'); }catch(err){cleanup(); s.ready=false; status(null); toast(err?.name==='NotAllowedError'?'Разреши доступ к камере.':'Не удалось открыть камеру.');}}
 function startDemo(){ cleanup(); clearSelection(); s.demostart=performance.now(); status('demo'); s.ready=true; toast('Обведи книгу: появятся две рамки — геометрическая и байесовская.'); }
@@ -1033,30 +834,62 @@ function updateGeometry(){
   if(!s.tracker)return; const r=trackObject(s.frame,s.W,s.H,s.tracker); s.geom=r;
   if(r.found){ const b=r.box, sx=b.x+b.w/2, sy=b.y+b.h/2; s.trailGeom.push({x:sx,y:sy}); if(s.trailGeom.length>38)s.trailGeom.shift(); if(r.recovered)toast(`Геометрия снова нашла предмет: ${r.inliers} точек.`); }
 }
-function updateBayes(stats){ if(!s.bayesModel)return; s.bayesResult=updateBayesSearch(s.bayesModel,s.frame,stats.edgePixels,s.W,s.H); if(s.bayesResult.found){ const b=s.bayesResult.box, sx=b.x+b.w/2, sy=b.y+b.h/2; s.trailBayes.push({x:sx,y:sy}); if(s.trailBayes.length>38)s.trailBayes.shift(); } probabilityDiagnostics(); }
-function summarize(){ if(!s.tracker){ paintStatuses(); return; } const gg=s.geom, bb=s.bayesResult; const gx=gg?.found?`Геом: ${gg.recovered?'восстановлен':'найден'}`:'Геом: ищет'; const bx=bb?.found?`Байес: найден`:'Байес: ищет'; $('trackingStatus').textContent=`${gx} · ${bx}`; $('trackingStatus').style.color='#c4f49b'; $('trackTitle').textContent='Сравнение двух рамок'; $('trackDescription').textContent='Зелёная рамка — геометрия по характерным точкам. Голубая рамка — независимый вероятностный поиск по всему кадру.'; const overlap=gg?.found&&bb?.found?(()=>{const a=gg.box,b=bb.box,xx=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)),yy=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)),inter=xx*yy;return Math.round(100*inter/Math.max(1,a.w*a.h+b.w*b.h-inter));})():null; $('trackDescription').textContent += overlap===null?' · Перекрытие рамок: нет пары.':` · Перекрытие рамок: ${overlap}%. Это не показатель точности.`; const geomScore=gg?.found?`${gg.inliers}/${gg.total} точек`:'—'; const bayesScore=bb?`${bb.tested} гипотез, gap ${bb.scoreGap?.toFixed(3)??'—'}`:'—'; $('trackScore').textContent=`${geomScore} · ${bayesScore}`; const active=gg?.found?gg.box:(bb?.found?bb.box:null); if(active){ const sx=active.x+active.w/2, sy=active.y+active.h/2; $('coords').textContent=`X ${Math.round(100*sx/s.W)}% · Y ${Math.round(100*sy/s.H)}%`; } $('confidence').textContent=bb?.found?`${Math.min(99.9,(s.bayesModel?.p??0)*100).toFixed(1)}%`:(gg?.found?`${Math.round(gg.confidence*100)}%`:'—'); paintStatuses(); }
-
+function summarize(){
+ if(!s.tracker){paintStatuses();return;}
+ const gg=s.geom,bb=s.bayesResult;
+ const gx=gg?.found?`Геом: ${gg.recovered?'восстановлен':'найден'}`:'Геом: ищет';
+ const bx=bb?.found?'Статья: выбран фрагмент':(!s.paperInitialized?'Статья: подготовка':'Статья: нет оценки');
+ $('trackingStatus').textContent=`${gx} · ${bx}`;$('trackingStatus').style.color='#c4f49b';
+ $('trackTitle').textContent='Сопоставление двух алгоритмов';
+ $('trackDescription').textContent='Зелёная рамка: характерные точки. Голубая: фиксированная сетка фрагментов и двухмоментная байесовская рекурсия статьи.';
+ const overlap=gg?.found&&bb?.found?(()=>{const a=gg.box,b=bb.box,xx=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)),yy=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)),inter=xx*yy;return Math.round(100*inter/Math.max(1,a.w*a.h+b.w*b.h-inter));})():null;
+ $('trackDescription').textContent+=overlap===null?' · Перекрытие: нет двух оценок.':` · Перекрытие: ${overlap}% (не показатель точности).`;
+ $('trackScore').textContent=`${gg?.found?gg.inliers+'/'+gg.total+' точек':'геом ищет'} · ${bb?.found?bb.candidates+' фрагментов':(s.paperStats?.range?.cols??'—')+' столбцов поиска'}`;
+ const active=gg?.found?gg.box:(bb?.found?bb.box:null);
+ if(active){const sx=active.x+active.w/2,sy=active.y+active.h/2;$('coords').textContent=`X ${Math.round(100*sx/s.W)}% · Y ${Math.round(100*sy/s.H)}%`;}
+ $('confidence').textContent=gg?.found?`${Math.round(gg.confidence*100)}% · геом`:'—';
+ paintStatuses();
+}
 function drawTrail(trail,color,tx,ty){ if(trail.length<2)return; ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2; for(let i=0;i<trail.length;i++){const t=trail[i]; if(i===0)ctx.moveTo(tx(t.x),ty(t.y)); else ctx.lineTo(tx(t.x),ty(t.y)); } ctx.stroke(); }
 function drawBox(box,label,color,tx,ty,dashed=false,width=2.5,labelBottom=false){ if(!box)return; ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=width; ctx.shadowColor=color; ctx.shadowBlur=8; if(dashed)ctx.setLineDash([7,5]); ctx.strokeRect(tx(box.x),ty(box.y),box.w*s.present.w/s.W,box.h*s.present.h/s.H); ctx.setLineDash([]); ctx.shadowBlur=0; const lx=Math.max(s.present.x,tx(box.x)), ly=labelBottom?Math.min(s.present.y+s.present.h,ty(box.y+box.h)+19):Math.max(s.present.y+18,ty(box.y)); ctx.fillStyle='#0b2325df'; ctx.fillRect(lx,ly-17,144,17); ctx.fillStyle=color; ctx.font='bold 10px system-ui'; ctx.fillText(label,lx+6,ly-5); ctx.restore(); }
 function drawSource(src){ const W=stage.clientWidth,H=stage.clientHeight; ctx.fillStyle='#081b23'; ctx.fillRect(0,0,W,H); const factor=Math.min(W/src.W,H/src.H); const p={x:(W-src.W*factor)/2,y:(H-src.H*factor)/2,w:src.W*factor,h:src.H*factor}; s.present=p; ctx.drawImage(src.image,p.x,p.y,p.w,p.h); const tx=x=>p.x+x*p.w/s.W, ty=y=>p.y+y*p.h/s.H; drawTrail(s.trailGeom,'#bdf69ab2',tx,ty); drawTrail(s.trailBayes,'#7fdaff99',tx,ty);
   if(s.tracker){ if(s.geom?.found) drawBox(s.geom.box,s.geom.recovered?'ГЕОМ · СНОВА НАЙДЕН':'ГЕОМ · НАЙДЕН','#c4f49b',tx,ty,false,2.5); else if(s.geom?.box) drawBox(s.geom.box,'ГЕОМ · ПОИСК','#fbc57b',tx,ty,true,2.2); if(s.geom?.found && s.geom?.points){ for(const pt of s.geom.points){ctx.fillStyle='#c4f49bcc'; ctx.beginPath(); ctx.arc(tx(pt.x),ty(pt.y),2.1,0,Math.PI*2); ctx.fill(); } } }
-  if(s.bayesModel){ if(s.bayesResult?.found) drawBox(s.bayesResult.box,'БАЙЕС · НАЙДЕН','#7fdaff',tx,ty,false,2.2,true); else if(s.bayesModel.lastBox) drawBox(s.bayesModel.lastBox,'БАЙЕС · ПОИСК','#5bc2ff',tx,ty,true,2,true); }
+  if(s.bayesModel && s.bayesResult?.found) drawBox(s.bayesResult.box,s.bayesResult.posteriorValid?'СТАТЬЯ · ФРАГМЕНТ':'СТАТЬЯ · P1 НЕВЕРНА',s.bayesResult.posteriorValid?'#7fdaff':'#fbc57b',tx,ty,!s.bayesResult.posteriorValid,2.2,true);
   if(s.selector){ const {x0,y0,x1,y1}=s.selector; ctx.save(); ctx.setLineDash([6,4]); ctx.strokeStyle='#f5f8f1'; ctx.lineWidth=2; ctx.fillStyle='#bcf3a52c'; ctx.fillRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0)); ctx.strokeRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0)); ctx.restore(); }
 }
 
-function tick(now){ requestAnimationFrame(tick); if(!s.ready||!s.mode||now-s.last<75)return; const dt=now-s.last; if(s.last&&dt<500){const fps=1000/dt; s.fps=s.fps ? s.fps*.72+fps*.28 : fps;} s.last=now; if(s.mode==='demo')fillDemo((now-s.demostart)/1000); const src=source(); if(!src)return; try{ frameData(src); updateGeometry(); let stats=null; if(now-s.lastStat>260){ stats=analyzeFrame(s.frame,s.W,s.H); renderDiagnostics(stats); updateBayes(stats); s.lastStat=now; } summarize(); drawSource(src); $('rate').textContent=s.fps?s.fps.toFixed(0):'—'; $('resolution').textContent=`${src.W} × ${src.H}`; }catch(err){ console.error(err); toast('Ошибка обработки кадра.'); stop(); } }
-
+function tick(now){
+ requestAnimationFrame(tick);if(!s.ready||!s.mode||now-s.last<75)return;
+ const dt=now-s.last;if(s.last&&dt<500){const fps=1000/dt;s.fps=s.fps?s.fps*.72+fps*.28:fps;}s.last=now;
+ if(s.mode==='demo')fillDemo((now-s.demostart)/1000);
+ const src=source();if(!src)return;
+ try{
+  frameData(src);updateGeometry();updateArticleFrame();
+  if(now-s.lastStat>360){renderDiagnostics(analyzeFrame(s.frame,s.W,s.H));s.lastStat=now;}
+  summarize();drawSource(src);$('rate').textContent=s.fps?s.fps.toFixed(0):'—';
+  $('resolution').textContent=`${src.W} × ${src.H}`;
+ }catch(err){console.error(err);toast('Ошибка обработки кадра.');stop();}
+}
 function pointerPos(event){ const rect=stage.getBoundingClientRect(); return {x:event.clientX-rect.left,y:event.clientY-rect.top}; }
 function framePos(p){ const t=s.present; return {x:(p.x-t.x)/t.w*s.W, y:(p.y-t.y)/t.h*s.H}; }
 function inFrame(p){ const q=s.present; return p.x>=q.x&&p.x<=q.x+q.w&&p.y>=q.y&&p.y<=q.y+q.h; }
 function onPointerDown(e){ if(!s.ready||!s.frame)return; const p=pointerPos(e); if(!inFrame(p))return; stage.setPointerCapture(e.pointerId); s.selector={x0:p.x,y0:p.y,x1:p.x,y1:p.y,id:e.pointerId}; }
 function onPointerMove(e){ if(!s.selector||s.selector.id!==e.pointerId)return; const p=pointerPos(e),q=s.present; s.selector.x1=Math.max(q.x,Math.min(q.x+q.w,p.x)); s.selector.y1=Math.max(q.y,Math.min(q.y+q.h,p.y)); const src=source(); if(src)drawSource(src); }
 function onPointerUp(e){ if(!s.selector||s.selector.id!==e.pointerId)return; const sel=s.selector; s.selector=null; const start=framePos({x:sel.x0,y:sel.y0}), end=framePos({x:sel.x1,y:sel.y1}); let box={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(start.x-end.x),h:Math.abs(start.y-end.y)}; const tap=Math.hypot(sel.x1-sel.x0,sel.y1-sel.y0)<12; if(tap) box={x:start.x-36,y:start.y-27,w:72,h:54}; box.x=Math.max(0,Math.min(s.W-12,box.x)); box.y=Math.max(0,Math.min(s.H-12,box.y)); box.w=Math.min(box.w,s.W-box.x); box.h=Math.min(box.h,s.H-box.y);
-  const tracker=createTracker(s.frame,s.W,s.H,box); if(tracker.error){toast(tracker.error); return;} const stats=analyzeFrame(s.frame,s.W,s.H); const model=createBayesSearchModel(s.frame,stats.edgePixels,s.W,s.H,box); if(model.error){toast(model.error); return;} s.tracker=tracker; s.geom={found:true,recovered:false,box:tracker.box,polygon:tracker.polygon,points:tracker.points,inliers:tracker.points.length,total:tracker.points.length,confidence:1}; s.bayesModel=model; s.bayesResult={found:true,box:model.box,tested:0,scoreGap:0}; s.trailGeom=[]; s.trailBayes=[]; redrawBayesHistory(model); $('instruction').classList.add('hidden'); summarize(); toast(`Созданы две модели: ${tracker.points.length} точек для геометрии и независимый байесовский поиск.`); }
+  const tracker=createTracker(s.frame,s.W,s.H,box);
+  if(tracker.error){toast(tracker.error);return;}
+  s.tracker=tracker;
+  s.geom={found:true,recovered:false,box:tracker.box,polygon:tracker.polygon,points:tracker.points,inliers:tracker.points.length,total:tracker.points.length,confidence:1};
+  s.bayesModel={box:tracker.box,history:[.5],error:null};s.bayesResult=null;
+  s.trailGeom=[];s.trailBayes=[];sendArticleInit(box);
+  $('instruction').classList.add('hidden');summarize();
+  toast('Геометрия запущена. Инициализируется математический алгоритм статьи.');
+}
 
 $('cameraBtn').addEventListener('click',startCamera); $('bigCamera').addEventListener('click',startCamera); $('demoBtn').addEventListener('click',startDemo); $('bigDemo').addEventListener('click',startDemo); $('stopBtn').addEventListener('click',stop); $('resetBtn').addEventListener('click',()=>{clearSelection(); if(s.mode)toast('Выдели новый предмет.');}); $('flipBtn').addEventListener('click',()=>{s.facing=s.facing==='environment'?'user':'environment'; startCamera();}); $('fileBtn').addEventListener('click',()=>$('fileInput').click()); $('fileInput').addEventListener('change',async e=>{await startFile(e.target.files?.[0]); e.target.value='';});
 stage.addEventListener('pointerdown',onPointerDown); stage.addEventListener('pointermove',onPointerMove); stage.addEventListener('pointerup',onPointerUp); stage.addEventListener('pointercancel',()=>{s.selector=null;});
 function closePanel(){$('panel').classList.remove('open');$('shade').classList.add('hidden');} function openPanel(){$('panel').classList.add('open');$('shade').classList.remove('hidden');}
+$('scanRange').addEventListener('change',()=>{if(s.tracker){clearSelection();toast('Область поиска изменена. Выдели предмет заново.');}});
 $('statsBtn').addEventListener('click',openPanel); $('closePanel').addEventListener('click',closePanel); $('shade').addEventListener('click',closePanel);
 function closeHelp(){$('help').classList.add('hidden');} $('infoBtn').addEventListener('click',()=>$('help').classList.remove('hidden')); $('closeHelp').addEventListener('click',closeHelp); $('okayHelp').addEventListener('click',closeHelp); $('help').addEventListener('click',e=>{if(e.target===$('help'))closeHelp();}); document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeHelp();closePanel();}});
 window.addEventListener('resize',resize); window.addEventListener('orientationchange',resize); window.addEventListener('pagehide',cleanup); if('ResizeObserver' in window) new ResizeObserver(resize).observe($('screen')); resize(); status(null); requestAnimationFrame(tick);
