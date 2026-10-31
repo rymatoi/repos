@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#09131b">
   <meta name="description" content="Локальная лаборатория компьютерного зрения: выделяйте бытовые предметы на камере и изучайте их движение и статистику границ.">
-  <title>Frame Lab — отслеживание предмета</title>
+  <title>Frame Lab 360 — отслеживание предметов</title>
   <style>:root{color-scheme:dark;--bg:#081319;--panel:#0e2027;--line:#263d42;--text:#eaf6ed;--muted:#99b0b2;--lime:#c4f49b;--amber:#fbc57b;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
 *{box-sizing:border-box}html,body{padding:0;margin:0;width:100%;height:100%;font-family:var(--font);background:var(--bg);color:var(--text)}.hidden{display:none!important}button{color:inherit;border:0;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 .app{height:100vh;height:100dvh;width:100%;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(ellipse at 40% 0%,#193139 0%,transparent 58%),var(--bg)}.top{height:62px;padding:0 max(15px,env(safe-area-inset-right)) 0 max(17px,env(safe-area-inset-left));flex:none;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.brand{display:flex;align-items:center;gap:10px;white-space:nowrap}.brand-glyph{color:var(--lime);font-size:30px;line-height:1}.brand b{font-size:19px;letter-spacing:.075em}.brand b span{color:var(--lime)}.brand-caption{font-size:9px;letter-spacing:.15em;color:#7ea1a0;padding-left:12px;border-left:1px solid var(--line)}.top-right{display:flex;gap:14px;align-items:center}.source-pill{font-size:10px;font-weight:700;letter-spacing:.09em;color:#b0d2c2}.small-btn{display:grid;place-items:center;background:#142b32;border:1px solid #34505a;width:34px;height:34px;border-radius:10px;font-weight:800;color:#c9e0dc}.main{flex:1;min-height:0;display:flex}.screen-column{flex:1;min-width:0;min-height:0;padding:14px 14px 12px 16px;display:flex;flex-direction:column;gap:11px}.screen{position:relative;flex:1;min-height:0;overflow:hidden;border:1px solid #38535c;border-radius:14px;background:#112630}.screen canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}.view-head{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;color:#aabebc;font-size:10px;font-weight:700;letter-spacing:.06em;text-shadow:0 1px 6px #000c}.tracking-pill{background:#081b22ce;border:1px solid #2f4a4f;border-radius:7px;padding:6px 9px;color:var(--lime)}.view-head>span{background:#081b22bb;border-radius:6px;padding:6px}.view-foot{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;color:#e0f0e8;font-weight:600;font-size:11px;text-shadow:0 1px 5px #000}.view-foot span{background:#06171aa3;padding:5px 8px;border-radius:6px}.view-foot span span{background:none;padding:0}.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;pointer-events:none;background:radial-gradient(ellipse at center,#1d343b9a,#092027cb)}.empty-ring{font-size:58px;color:var(--lime);line-height:1}.empty h1{margin:8px 0;font-size:clamp(20px,3.2vw,38px);line-height:1.15;letter-spacing:-.035em}.empty h1 i{font-style:normal;color:var(--lime)}.empty p{max-width:460px;font-size:clamp(11px,1.5vw,14px);line-height:1.5;color:#b2c5c8;margin:5px 0 13px}.empty-buttons{display:flex;gap:10px;pointer-events:auto}.instruction{position:absolute;top:49px;left:50%;transform:translateX(-50%);max-width:90%;text-align:center;background:#132e36db;border:1px solid #496062;color:#cde1d9;font-size:11px;border-radius:9px;padding:7px 10px;pointer-events:none}.toolbar{flex:none;display:flex;justify-content:space-between;gap:8px;align-items:center;min-height:44px}.tools-main,.tools-extra{display:flex;align-items:center;gap:6px;min-width:0}.btn,.icon-btn{height:42px;padding:0 14px;border-radius:10px;background:#1a343b;border:1px solid #365158;font-size:13px;font-weight:680;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}.btn.primary{color:#0b261a;background:var(--lime);border-color:var(--lime);font-weight:800}.btn.secondary{background:#263e46}.icon-btn{min-width:42px;padding:0 9px;font-size:20px}.stats-btn{font-size:14px;color:var(--lime)}.stats-btn span{font-size:12px}.bottom{height:27px;flex:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 20px;background:#0b1b22;border-top:1px solid #20363d;font-size:9px;letter-spacing:.075em;color:#9fb7ad}.bottom-hint{color:#728c8d}
@@ -17,6 +17,20 @@
 @media(max-width:600px) and (orientation:portrait){.top{height:47px}.brand-caption{display:none}.source-pill{font-size:9px}.screen-column{padding:7px}.toolbar{flex-wrap:wrap;justify-content:center}.tools-main,.tools-extra{width:100%;justify-content:center}.btn{padding:0 9px;flex:1}.icon-btn{flex:1}.screen{min-height:220px}.empty h1{font-size:22px}.empty p{font-size:12px}.bottom{display:none}}
 @media(max-width:380px){.brand b{font-size:15px}.source-pill{font-size:8px}.stats-btn span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Compact horizontal camera UI: no clipped controls on short iPhones. */
+@media (orientation:landscape) and (max-height:430px){
+ .top{height:34px}.screen-column{padding:4px 6px;gap:4px}
+ .toolbar{min-height:34px}.btn,.icon-btn{height:32px;padding:0 8px}
+ .view-head{top:4px}.view-foot{bottom:4px}.instruction{top:31px}
+ .brand-caption{display:none}
+ .empty-ring{font-size:25px}.empty h1{font-size:18px}.empty p{font-size:10px}
+}
+@media (orientation:landscape) and (max-height:310px){
+ .top{height:29px}.source-pill{display:none}.toolbar{min-height:30px}
+ .btn,.icon-btn{height:28px;font-size:10px}.screen-column{padding:3px;gap:3px}
+ .view-foot{display:none}.empty p{display:none}
+}
 </style>
 </head>
 <body>
@@ -46,19 +60,21 @@
     </section>
     <aside id="panel" class="panel" aria-label="Математическая диагностика">
       <div class="panel-top"><div><span class="eyebrow">СТАТИСТИЧЕСКИЙ АНАЛИЗ</span><h2>Внутри кадра</h2></div><button id="closePanel" class="small-btn close-panel" aria-label="Закрыть анализ">×</button></div>
-      <div class="status-card"><div class="small-label">ВЫДЕЛЕННЫЙ ПРЕДМЕТ <span id="trackingStatus">НЕ ВЫБРАН</span></div><div class="status-line"><strong id="trackTitle">Выдели прямоугольник</strong><span id="trackScore">—</span></div><p id="trackDescription">Можно обвести книгу, пульт, игрушку или другой предмет с заметными деталями.</p></div>
+      <div class="status-card"><div class="small-label">ВЫДЕЛЕННЫЙ ПРЕДМЕТ <span id="trackingStatus">НЕ ВЫБРАН</span></div><div class="status-line"><strong id="trackTitle">Выдели прямоугольник</strong><span id="trackScore">—</span></div><p id="trackDescription">Выдели границы книги, пульта или другого предмета с характерными точками.</p></div>
       <div class="panel-section"><div class="section-title"><span>ПРЕДОБРАБОТКА</span><strong>Контуры Собеля</strong></div><canvas id="edges" width="320" height="180"></canvas><div class="value-pair"><span>Средний градиент</span><b id="mean">—</b></div><div class="value-pair"><span>Резкость</span><b id="sharpness">—</b></div></div>
       <div class="panel-section"><div class="section-title"><span>РАСПРЕДЕЛЕНИЕ</span><strong>Бета-модель</strong></div><canvas id="hist" width="320" height="98"></canvas><div class="params"><div>α<b id="alpha">—</b></div><div>β<b id="beta">—</b></div><div>σ²<b id="variance">—</b></div></div><div class="value-pair"><span>Порог Отсу</span><b id="threshold">—</b></div></div>
-      <p class="note">Рамка движется с помощью локального сравнения выбранного визуального образца. Контуры, гистограмма и бета-распределение — отдельные диагностические вычисления. Это эксперимент по компьютерному зрению, а не проверка полной исходной модели.</p>
+      <p class="note">Рамка следует за согласованным движением характерных точек предмета. Процент согласования — эвристическая оценка качества, а не калиброванная вероятность. Контуры, гистограмма и бета-распределение — отдельная диагностика. Это эксперимент по компьютерному зрению, а не проверка полной исходной модели.</p>
     </aside>
   </main>
   <footer class="bottom"><span>● ВИДЕО ОБРАБАТЫВАЕТСЯ НА УСТРОЙСТВЕ</span><span class="bottom-hint">Перетащи рамку вокруг предмета · Лучше работают предметы с деталями</span></footer>
 </div>
 <div id="shade" class="shade hidden"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Проверка на обычном предмете</h2><ol><li>Открой «Камера» и разреши доступ.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Плавно перемещай предмет или камеру. Зелёная рамка показывает область с похожим изображением; жёлтая означает, что соответствие потеряно.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают контрастные предметы с надписями, углами и узорами. Однотонные поверхности, быстрый поворот, сильное перекрытие или выход из кадра могут приводить к потере совпадения.</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
+<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Проверка на обычном предмете</h2><ol><li>Открой «Камера» и разреши доступ.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Медленно обходи неподвижный предмет. Рамка следует за точками внутри него. Зелёная рамка показывает согласованное движение точек внутри предмета; жёлтая означает потерю надёжных совпадений.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают предметы с надписями, углами и узорами. При обходе предмета меняются видимые грани: сильный поворот или выход из кадра всё равно могут вызвать потерю. Статистика бета-распределения не участвует в трекинге.</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
 <video id="video" playsinline autoplay muted style="display:none"></video>
-<script>/** Pure image-analysis functions. No DOM and no server. */
+<script>
+// ===== vision.js =====
+/** Pure image-analysis functions. No DOM and no server. */
 function rgbToHsv(r, g, b) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -275,135 +291,200 @@ function makeMoments() {
   };
 }
 
+
+// ===== tracker.js =====
 /**
- * Household image-patch tracker (local normalized correlation).
- * No object classification, no network, no specialized target recognition.
- * Each track is initialized by a user's explicit rectangle selection.
+ * FRAME LAB / household object tracker.
+ * Browser-only feature tracking. Detect Harris corners inside the chosen
+ * item, match patches across consecutive frames, estimate an inlier-supported
+ * similarity transform and discard conflicting point movements.
+ * This is NOT a reproduction of the source paper's target-selection algorithm.
  */
-function luminance(imageData, width, height) {
-  const d = imageData.data ?? imageData;
-  const a = new Float32Array(width * height);
-  for (let i = 0, k = 0; k < a.length; k++, i += 4)
-    a[k] = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
-  return a;
+function luminance(imageData, w, h) {
+  const src=imageData.data??imageData, dst=new Float32Array(w*h);
+  for(let p=0,i=0;p<dst.length;p++,i+=4)dst[p]=(.2126*src[i]+.7152*src[i+1]+.0722*src[i+2])/255;
+  return dst;
 }
-
-function clampBox(box, width, height) {
-  const x = Math.max(0, Math.min(width - 1, Math.round(box.x)));
-  const y = Math.max(0, Math.min(height - 1, Math.round(box.y)));
-  return {
-    x, y,
-    w: Math.min(width - x, Math.max(1, Math.round(box.w))),
-    h: Math.min(height - y, Math.max(1, Math.round(box.h)))
-  };
+function clampBox(input,w,h){
+  const x=Math.min(w-1,Math.max(0,Math.round(input.x))),y=Math.min(h-1,Math.max(0,Math.round(input.y)));
+  return {x,y,w:Math.min(w-x,Math.max(1,Math.round(input.w))),h:Math.min(h-y,Math.max(1,Math.round(input.h)))};
 }
-
-const GRID_X = 12;
-const GRID_Y = 10;
-const LOCATIONS = Array.from({length: GRID_Y}, (_,j) =>
-  Array.from({length: GRID_X}, (_,i) => ({u:(i + .5)/GRID_X,v:(j+.5)/GRID_Y}))).flat();
-
-function valueAt(luma, W, H, x, y) {
-  const px = Math.max(0, Math.min(W-1, Math.round(x)));
-  const py = Math.max(0, Math.min(H-1, Math.round(y)));
-  return luma[py*W + px];
+function down2(src,w,h){let nw=Math.ceil(w/2),nh=Math.ceil(h/2),out=new Float32Array(nw*nh);
+  for(let y=0;y<nh;y++)for(let x=0;x<nw;x++){
+    let v=0,n=0;for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){
+      const xx=x*2+dx,yy=y*2+dy;if(xx<w&&yy<h){v+=src[yy*w+xx];n++;}
+    }out[y*nw+x]=v/n;
+  }return {image:out,w:nw,h:nh};
 }
-
-function getSamples(luma, W, H, box) {
-  const out = new Float32Array(LOCATIONS.length);
-  for (let k=0;k<LOCATIONS.length;k++) {
-    const {u,v}=LOCATIONS[k];
-    out[k]=valueAt(luma,W,H,box.x+u*box.w,box.y+v*box.h);
+function rectCorners(b){return [{x:b.x,y:b.y},{x:b.x+b.w,y:b.y},{x:b.x+b.w,y:b.y+b.h},{x:b.x,y:b.y+b.h}];}
+function polygonBounds(poly,w,h){const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y);const x=Math.max(0,Math.min(...xs)),y=Math.max(0,Math.min(...ys));return {x,y,w:Math.min(w-x,Math.max(...xs)-x),h:Math.min(h-y,Math.max(...ys)-y)};}
+function inside(poly,x,y){let result=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+ const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y)) && x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)result=!result;
+}return result;}
+function shrinkPoly(poly,k=.13){const c={x:poly.reduce((s,p)=>s+p.x,0)/poly.length,y:poly.reduce((s,p)=>s+p.y,0)/poly.length};return poly.map(p=>({x:c.x+(p.x-c.x)*(1-k),y:c.y+(p.y-c.y)*(1-k)}));}
+function findCorners(image,w,h,poly,maxCount=75,existing=[]){
+ const region=shrinkPoly(poly),bound=polygonBounds(region,w,h),candidates=[];
+ const left=Math.max(7,Math.floor(bound.x)),top=Math.max(7,Math.floor(bound.y));
+ const right=Math.min(w-8,Math.ceil(bound.x+bound.w)),bottom=Math.min(h-8,Math.ceil(bound.y+bound.h));
+ for(let y=top;y<=bottom;y+=2)for(let x=left;x<=right;x+=2){
+   if(!inside(region,x,y))continue;
+   let a=0,b=0,c=0;
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+     const p=(y+dy)*w+x+dx;
+     const gx=image[p+1]-image[p-1],gy=image[p+w]-image[p-w];
+     a+=gx*gx;b+=gx*gy;c+=gy*gy;
+   }
+   const tr=a+c,det=a*c-b*b;
+   const score=det-.04*tr*tr;
+   if(score>0)candidates.push({x,y,score});
+ }
+ candidates.sort((u,v)=>v.score-u.score);
+ const max=candidates[0]?.score||0;
+ const picked=[...existing].map(p=>({x:p.x,y:p.y})),out=[];
+ for(const p of candidates){if(p.score<max*.015)break;
+   if(picked.every(q=>(p.x-q.x)**2+(p.y-q.y)**2>=36)){
+     out.push({x:p.x,y:p.y});picked.push(p);if(out.length+existing.length>=maxCount)break;
+   }
+ }return out;
+}
+function patchReference(image,w,h,x,y,r){
+ const ix=Math.round(x),iy=Math.round(y);if(ix-r<0||iy-r<0||ix+r>=w||iy+r>=h)return null;
+ const vals=new Float32Array((2*r+1)**2);let mean=0,k=0;
+ for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+  const v=image[(iy+dy)*w+ix+dx];vals[k++]=v;mean+=v;
+ }
+ mean/=vals.length;let variation=0;for(let i=0;i<vals.length;i++){vals[i]-=mean;variation+=vals[i]*vals[i];}
+ return variation>0.001?{vals,variation,r}:null;
+}
+function patchCorrelation(ref,image,w,h,x,y){
+ const ix=Math.round(x),iy=Math.round(y),r=ref.r;
+ if(ix-r<0||iy-r<0||ix+r>=w||iy+r>=h)return -2;
+ let sum=0,sum2=0,cross=0,k=0;
+ for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+   const v=image[(iy+dy)*w+ix+dx];sum+=v;sum2+=v*v;cross+=ref.vals[k++]*v;
+ }
+ const variation=sum2-sum*sum/ref.vals.length;
+ return variation>0.001?cross/Math.sqrt(variation*ref.variation):-2;
+}
+function bestPatch(ref,image,w,h,cx,cy,radius){
+ if(!ref)return {x:-1,y:-1,score:-3};
+ let bx=-1,by=-1,best=-3;
+ const x0=Math.round(cx),y0=Math.round(cy);
+ for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
+   const x=x0+dx,y=y0+dy,score=patchCorrelation(ref,image,w,h,x,y);
+   if(score>best){best=score;bx=x;by=y;}
+ }
+ return {x:bx,y:by,score:best};
+}
+/** Two-level coarse-to-fine zero-mean patch matching. */
+function followPoint(prev,next,halfPrev,halfNext,w,h,point,predict){
+ const rHalf=patchReference(halfPrev.image,halfPrev.w,halfPrev.h,point.x/2,point.y/2,2);
+ if(!rHalf)return null;
+ const coarse=bestPatch(rHalf,halfNext.image,halfNext.w,halfNext.h,
+  (point.x+predict.x)/2,(point.y+predict.y)/2,8);
+ if(coarse.score<.48)return null;
+ const rFull=patchReference(prev,w,h,point.x,point.y,3);
+ if(!rFull)return null;
+ const fine=bestPatch(rFull,next,w,h,coarse.x*2,coarse.y*2,3);
+ if(fine.score<.60)return null;
+ // Backward validation rejects a large share of appearance-alike distractors.
+ const back=bestPatch(patchReference(next,w,h,fine.x,fine.y,3),prev,w,h,point.x,point.y,3);
+ if(Math.hypot(back.x-point.x,back.y-point.y)>2.8)return null;
+ return {old:point,now:{x:fine.x,y:fine.y},score:fine.score};
+}
+function solvePair(p,q){
+ const dx=p[1].old.x-p[0].old.x,dy=p[1].old.y-p[0].old.y;
+ const du=p[1].now.x-p[0].now.x,dv=p[1].now.y-p[0].now.y;
+ const d=dx*dx+dy*dy;if(d<75)return null;
+ const a=(dx*du+dy*dv)/d,b=(dx*dv-dy*du)/d;
+ const scale=Math.hypot(a,b),angle=Math.atan2(b,a);
+ if(scale<.72||scale>1.38||Math.abs(angle)>.45)return null;
+ return {a,b,tx:p[0].now.x-a*p[0].old.x+b*p[0].old.y,ty:p[0].now.y-b*p[0].old.x-a*p[0].old.y};
+}
+function apply(t,p){return {x:t.a*p.x-t.b*p.y+t.tx,y:t.b*p.x+t.a*p.y+t.ty};}
+function error(t,m){const p=apply(t,m.old);return Math.hypot(p.x-m.now.x,p.y-m.now.y);}
+function refine(matches){
+ let ox=0,oy=0,nx=0,ny=0;
+ for(const m of matches){ox+=m.old.x;oy+=m.old.y;nx+=m.now.x;ny+=m.now.y;}
+ ox/=matches.length;oy/=matches.length;nx/=matches.length;ny/=matches.length;
+ let A=0,B=0,D=0;
+ for(const m of matches){const x=m.old.x-ox,y=m.old.y-oy,u=m.now.x-nx,v=m.now.y-ny;
+ A+=x*u+y*v;B+=x*v-y*u;D+=x*x+y*y;}
+ if(D<1)return null;
+ const a=A/D,b=B/D;return {a,b,tx:nx-a*ox+b*oy,ty:ny-b*ox-a*oy};
+}
+/** Robust similarity consensus, rejecting points on moving background. */
+function consensus(matches){
+ if(matches.length<5)return null;
+ let best=[];let bestResidual=Infinity;
+ const test=(transform)=>{
+   if(!transform)return;
+   const inliers=matches.filter(m=>error(transform,m)<3.6);
+   const residual=inliers.reduce((sum,m)=>sum+error(transform,m),0);
+   if(inliers.length>best.length || inliers.length===best.length&&residual<bestResidual){best=inliers;bestResidual=residual;}
+ };
+ for(let i=0;i<matches.length;i++){
+   for(let j=i+1;j<matches.length;j+=Math.max(1,Math.floor(matches.length/18))){
+     test(solvePair([matches[i],matches[j]]));
+   }
+ }
+ if(best.length<5)return null;
+ let t=refine(best);if(!t)return null;
+ const scale=Math.hypot(t.a,t.b),angle=Math.atan2(t.b,t.a);
+ if(scale<.72||scale>1.38||Math.abs(angle)>.45)return null;
+ best=matches.filter(m=>error(t,m)<3.6);
+ if(best.length>=5)t=refine(best)??t;
+ const rms=Math.sqrt(best.reduce((sum,m)=>sum+error(t,m)**2,0)/best.length);
+ return {transform:t,inliers:best,rms};
+}
+function createTracker(imageData,width,height,rawBox){
+ const box=clampBox(rawBox,width,height);
+ if(box.w<25||box.h<25)return {error:'Выдели предмет рамкой размером хотя бы 25 × 25 пикселей.'};
+ const gray=luminance(imageData,width,height),polygon=rectCorners(box);
+ const points=findCorners(gray,width,height,polygon,75);
+ if(points.length<8)return {error:'На предмете слишком мало различимых углов и деталей. Выбери обложку книги, пульт или предмет с рисунком.'};
+ return {box,polygon,gray,points,frame:0,lost:0,motion:{x:0,y:0},confidence:1,score:1,
+   inliers:points.length,total:points.length,rms:0};
+}
+function trackObject(imageData,width,height,tracker){
+ if(!tracker||tracker.error)return null;
+ const next=luminance(imageData,width,height),prev=tracker.gray;
+ const hp=down2(prev,width,height),hn=down2(next,width,height);
+ const matches=[];
+ for(const p of tracker.points){const m=followPoint(prev,next,hp,hn,width,height,p,tracker.motion);if(m)matches.push(m);}
+ const c=consensus(matches);
+ const required=Math.max(5,Math.min(9,Math.ceil(tracker.points.length*.24)));
+ const ok=!!c&&c.inliers.length>=required && (matches.length<=10||c.inliers.length/matches.length>=.42);
+ if(ok){
+  const oldCenter={x:(tracker.polygon[0].x+tracker.polygon[2].x)/2,y:(tracker.polygon[0].y+tracker.polygon[2].y)/2};
+  const nextPoly=tracker.polygon.map(p=>apply(c.transform,p));
+  const bound=polygonBounds(nextPoly,width,height),area=bound.w*bound.h;
+  const valid=nextPoly.every(p=>p.x>=-10&&p.y>=-10&&p.x<width+10&&p.y<height+10)&&area>=350&&bound.w<width*.95&&bound.h<height*.95;
+  if(valid){
+   tracker.polygon=nextPoly;tracker.box=bound;
+   tracker.motion={x:c.transform.tx+(c.transform.a-1)*oldCenter.x-c.transform.b*oldCenter.y,
+     y:c.transform.ty+c.transform.b*oldCenter.x+(c.transform.a-1)*oldCenter.y};
+   tracker.points=c.inliers.map(m=>m.now);
+   tracker.gray=next;tracker.frame++;tracker.lost=0;
+   if(tracker.frame%6===0&&tracker.points.length<65){
+    const fresh=findCorners(next,width,height,tracker.polygon,75,tracker.points);
+    tracker.points.push(...fresh);
+   }
+   tracker.inliers=c.inliers.length;tracker.total=matches.length;tracker.rms=c.rms;
+   tracker.score=c.inliers.length/Math.max(1,matches.length);
+   tracker.confidence=Math.min(1,c.inliers.length/Math.max(12,Math.min(45,tracker.points.length)))*Math.exp(-c.rms/5);
+   return {found:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:tracker.score,
+     confidence:tracker.confidence,inliers:tracker.inliers,total:tracker.total,rms:c.rms,lost:0};
   }
-  return out;
-}
-
-function getStats(a) {
-  let sum=0,square=0;
-  for(let i=0;i<a.length;i++){sum+=a[i];square+=a[i]*a[i];}
-  const mean=sum/a.length;
-  return {mean,variation:Math.max(0,square-a.length*mean*mean)};
-}
-
-/** Choose a precise object bounding rectangle on a single frame. */
-function createTracker(imageData,width,height,inputBox) {
-  const box=clampBox(inputBox,width,height);
-  if(box.w<12 || box.h<12) return {error:'Выдели рамку хотя бы 12 × 12 пикселей.'};
-  const image=luminance(imageData,width,height);
-  const reference=getSamples(image,width,height,box);
-  const {mean,variation}=getStats(reference);
-  if(variation/reference.length < 0.00035)
-    return {error:'Внутри почти нет видимых деталей. Выдели предмет вместе с текстурой или границами.'};
-  return {box,reference,mean,variation,velocity:{x:0,y:0},lost:0,confidence:1,score:1};
-}
-
-/** Zero-mean normalized correlation; stable under additive/multiplicative brightness changes. */
-function matchScore(reference,refMean,refVariation,luma,width,height,box) {
-  let sum=0,sum2=0,cross=0;
-  for(let k=0;k<LOCATIONS.length;k++) {
-    const {u,v}=LOCATIONS[k];
-    const pixel=valueAt(luma,width,height,box.x+u*box.w,box.y+v*box.h);
-    sum+=pixel;sum2+=pixel*pixel;cross+=(reference[k]-refMean)*pixel;
-  }
-  const n=LOCATIONS.length;
-  const variance=sum2-sum*sum/n;
-  if(variance<0.000001)return -1;
-  const corr=cross/Math.sqrt(refVariation*variance);
-  return Math.max(-1,Math.min(1,corr));
-}
-
-/**
- * Narrow local search around the last known patch. It deliberately refuses
- * a low-confidence match rather than reporting an arbitrary similar location.
- */
-function trackObject(imageData,width,height,tracker) {
-  if(!tracker || tracker.error) return null;
-  const luma=luminance(imageData,width,height);
-  const last=tracker.box;
-  const velocity=tracker.velocity;
-  const speed=Math.hypot(velocity.x,velocity.y);
-  const radius=Math.min(62,Math.max(18,Math.round(Math.max(last.w,last.h)*.55 + speed*2)) + Math.min(22,tracker.lost*5));
-  const cx=last.x + Math.round(velocity.x*.7),cy=last.y+Math.round(velocity.y*.7);
-  let best={score:-2,box:last};
-  const scales=[1,.95,1.05];
-  for(const s of scales) {
-    const w=Math.max(12,Math.round(last.w*s)),h=Math.max(12,Math.round(last.h*s));
-    const left=Math.max(0,cx-radius),right=Math.min(width-w,cx+radius);
-    const top=Math.max(0,cy-radius),bottom=Math.min(height-h,cy+radius);
-    const jump = radius>40?2:1;
-    for(let y=top;y<=bottom;y+=jump)for(let x=left;x<=right;x+=jump) {
-      const box={x,y,w,h};
-      const score=matchScore(tracker.reference,tracker.mean,tracker.variation,luma,width,height,box);
-      if(score>best.score)best={score,box};
-    }
-  }
-  // A pixel-precise pass around the coarse maximum.
-  const coarse=best.box;
-  for(let y=Math.max(0,coarse.y-3);y<=Math.min(height-coarse.h,coarse.y+3);y++) {
-    for(let x=Math.max(0,coarse.x-3);x<=Math.min(width-coarse.w,coarse.x+3);x++) {
-      const box={x,y,w:coarse.w,h:coarse.h};
-      const score=matchScore(tracker.reference,tracker.mean,tracker.variation,luma,width,height,box);
-      if(score>best.score)best={score,box};
-    }
-  }
-  // Demand a strong likeness to the original patch; do not adapt to distractors.
-  const required=tracker.lost ? .76 : .65;
-  const ok=best.score>=required;
-  if(ok) {
-    const dx=best.box.x-last.x,dy=best.box.y-last.y;
-    tracker.velocity={x:0.55*dx+0.45*velocity.x,y:0.55*dy+0.45*velocity.y};
-    tracker.box=best.box;
-    tracker.lost=0;
-  }else {
-    tracker.velocity={x:0,y:0};
-    tracker.lost=Math.min(12,tracker.lost+1);
-  }
-  tracker.score=best.score;
-  tracker.confidence=Math.max(0,Math.min(1,(best.score-.5)/.5));
-  return {found:ok,box:tracker.box,score:best.score,confidence:tracker.confidence,lost:tracker.lost};
+ }
+ tracker.lost=Math.min(999,tracker.lost+1);
+ tracker.motion={x:0,y:0};tracker.score=0;tracker.confidence=0;
+ return {found:false,box:tracker.box,polygon:tracker.polygon,points:[],score:0,confidence:0,
+   inliers:c?.inliers.length||0,total:matches.length,rms:null,lost:tracker.lost};
 }
 
 
+// ===== main.js =====
 
 
 const $=id=>document.getElementById(id);
@@ -424,28 +505,33 @@ function status(mode){s.mode=mode;const label={camera:'КАМЕРА · ЛОКА�
 function cleanup(){if(s.stream){s.stream.getTracks().forEach(t=>t.stop());s.stream=null;}video.pause();video.srcObject=null;video.removeAttribute('src');video.load();if(s.url){URL.revokeObjectURL(s.url);s.url=null;}}
 function stop(){cleanup();s.ready=false;s.frame=null;status(null);clearSelection();paintIdle();$('rate').textContent='—';}
 async function startCamera(){if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){toast('Для камеры нужен защищённый адрес HTTPS или localhost. Нажми «Пример».');return;}cleanup();clearSelection();try{const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:s.facing},width:{ideal:1280},height:{ideal:720}}});s.stream=stream;video.srcObject=stream;video.muted=true;video.playsInline=true;await video.play();status('camera');s.ready=true;toast('Камера включена. Обведи предмет рамкой пальцем.');}catch(err){cleanup();s.ready=false;status(null);toast(err?.name==='NotAllowedError'?'Разреши доступ к камере в Safari/браузере.':'Не удалось открыть камеру. Можно загрузить видео или открыть пример.');}}
-function startDemo(){cleanup();clearSelection();s.demostart=performance.now();status('demo');s.ready=true;toast('Обведи движущуюся книгу. Цветную наклейку искать не нужно.');}
+function startDemo(){cleanup();clearSelection();s.demostart=performance.now();status('demo');s.ready=true;toast('Обведи книгу: её положение почти постоянно, а фон движется.');}
 async function startFile(file){if(!file)return;if(!file.type.startsWith('video/')){toast('Выбери видеофайл.');return;}cleanup();clearSelection();s.url=URL.createObjectURL(file);video.src=s.url;video.loop=true;video.muted=true;video.playsInline=true;try{await video.play();status('file');s.ready=true;toast('Видео открыто. Обведи любой предмет.');}catch{cleanup();s.ready=false;status(null);toast('Браузер не смог открыть видео — попробуй MP4.');}}
 
 function fillDemo(time){const W=960,H=540,c=dctx;
   c.fillStyle='#18323c';c.fillRect(0,0,W,H);
   let gr=c.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#1b323b');gr.addColorStop(1,'#50716d');c.fillStyle=gr;c.fillRect(0,0,W,H);
-  c.fillStyle='#263f47';c.fillRect(0,395,W,145);
+  c.save();c.translate(96*Math.sin(time*.5),29*Math.cos(time*.42));
+  c.fillStyle='#263f47';c.fillRect(-160,395,W+320,145);
   c.fillStyle='#43636b';c.fillRect(0,394,W,3);
   // Static distractors and visually rich background
   c.save();c.translate(82,117);c.rotate(-.13);c.fillStyle='#829da2';c.fillRect(0,0,230,182);c.fillStyle='#213d4a';c.fillRect(17,19,195,31);c.fillStyle='#dae4d9';c.font='bold 19px system-ui';c.fillText('NOTES',30,41);for(let i=0;i<5;i++){c.fillStyle=i%2?'#5d7c82':'#c3cebd';c.fillRect(21,74+i*17,165-i*12,6);}c.restore();
   c.fillStyle='#2f4f54';c.fillRect(744,75,155,247);c.fillStyle='#accdc0';c.font='bold 19px system-ui';c.fillText('FRAME  LAB',752,118);for(let i=0;i<7;i++){c.strokeStyle='#72968f';c.strokeRect(756,141+i*23,90,12);}
   c.save();c.translate(820,433);c.fillStyle='#eee3ba';c.beginPath();c.ellipse(0,0,60,19,0,0,Math.PI*2);c.fill();c.fillStyle='#8f513e';c.fillRect(-42,-64,84,61);c.strokeStyle='#ddd0ae';c.lineWidth=9;c.beginPath();c.arc(43,-34,22,-Math.PI/2,Math.PI/2);c.stroke();c.restore();
   // Moving book with sharp distinct details (translate without rotating).
-  const bx=414+125*Math.sin(time*.76),by=182+72*Math.sin(time*.61+.3);
-  c.save();c.translate(bx,by);c.shadowColor='#0008';c.shadowBlur=20;c.shadowOffsetY=9;
+  const bx=480+19*Math.sin(time*.65),by=240+12*Math.sin(time*.53+.3);
+  c.restore();
+  c.save();c.translate(bx,by);c.rotate(.11*Math.sin(time*.47));c.scale(1+.12*Math.sin(time*.35),1+.10*Math.cos(time*.4));c.shadowColor='#0008';c.shadowBlur=20;c.shadowOffsetY=9;
   c.fillStyle='#decfb6';c.fillRect(-96,-76,192,154);c.shadowBlur=0;c.shadowOffsetY=0;
   c.fillStyle='#204a51';c.fillRect(-89,-69,178,138);c.fillStyle='#d4ecd1';c.fillRect(-78,-55,156,33);
   c.fillStyle='#183b41';c.font='bold 20px system-ui';c.fillText('BOOK  07',-68,-32);
   c.fillStyle='#7da8a1';c.fillRect(-71,-12,78,63);c.fillStyle='#eac8a7';c.beginPath();c.arc(-31,20,23,0,2*Math.PI);c.fill();
   c.fillStyle='#eaf2df';c.fillRect(18,-8,48,8);c.fillRect(18,11,62,6);c.fillRect(18,29,54,6);c.fillRect(18,46,33,6);
+  // Detailed print and small motifs supply trackable corners, like a real book cover.
+  for(let ry=0;ry<4;ry++)for(let rx=0;rx<5;rx++){const xx=-70+rx*14,yy=-12+ry*15;c.fillStyle=(rx+ry)%2?'#284f58':'#d8e7c2';c.fillRect(xx,yy,7,6);c.fillStyle='#15343b';c.fillRect(xx+3,yy+2,2,2);}
+  for(let z=0;z<7;z++){c.fillStyle=z%2?'#d4ead6':'#8ed4b6';c.fillRect(21+z*8,53+(z%2)*5,3,3);}
   c.strokeStyle='#a2ccc3';c.lineWidth=2;c.strokeRect(-89,-69,178,138);c.restore();
-  c.fillStyle='#d2e7d6';c.font='15px system-ui';c.fillText('ПРИМЕР · ВЫДЕЛИ КНИГУ РАМКОЙ И ПЕРЕМЕЩАЙСЯ ВОКРУГ',25,518);
+  c.fillStyle='#d2e7d6';c.font='15px system-ui';c.fillText('ПРИМЕР · ПРЕДМЕТ ОСТАЁТСЯ, ФОН ДВИЖЕТСЯ',25,518);
 }
 function source(){if(s.mode==='demo')return {image:demo,W:demo.width,H:demo.height};if((s.mode==='camera'||s.mode==='file')&&video.readyState>=HTMLMediaElement.HAVE_CURRENT_DATA&&video.videoWidth)return {image:video,W:video.videoWidth,H:video.videoHeight};return null;}
 function resize(){const b=stage.getBoundingClientRect();const dpr=Math.min(2,window.devicePixelRatio||1);const w=Math.max(1,Math.round(b.width*dpr)),h=Math.max(1,Math.round(b.height*dpr));if(stage.width!==w||stage.height!==h){stage.width=w;stage.height=h;}ctx.setTransform(dpr,0,0,dpr,0,0);if(!s.mode)paintIdle();}
@@ -457,11 +543,43 @@ function renderDiagnostics(stats){$('mean').textContent=stats.mean.toFixed(4);$(
   const hc=$('hist'),w=hc.width,h=hc.height;hctx.fillStyle='#091b21';hctx.fillRect(0,0,w,h);const max=Math.max(1,...stats.histogram);for(let i=0;i<stats.histogram.length;i++){const x=i*w/stats.histogram.length,bh=Math.sqrt(stats.histogram[i]/max)*(h-10);hctx.fillStyle=(i/stats.histogram.length<stats.threshold)?'#477e7a':'#bef19c';hctx.fillRect(x+1,h-bh-2,w/stats.histogram.length-2,bh);}
   if(stats.threshold){hctx.strokeStyle='#ffc07a';hctx.beginPath();hctx.moveTo(stats.threshold*w,0);hctx.lineTo(stats.threshold*w,h);hctx.stroke();}
 }
-function updateTracking(){if(!s.tracker)return;const prev=s.tracker.box;const result=trackObject(s.frame,s.W,s.H,s.tracker);s.result=result;if(result.found){const b=result.box,sx=b.x+b.w/2,sy=b.y+b.h/2;s.trail.push({x:sx,y:sy});if(s.trail.length>38)s.trail.shift();$('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';$('trackingPill').textContent='● ОБЪЕКТ В КАДРЕ';$('trackTitle').textContent='Совпадение найдено';$('trackDescription').textContent=`Размер области: ${b.w} × ${b.h} пикселей`;const delta=Math.hypot(b.x-prev.x,b.y-prev.y);$('trackScore').textContent=delta.toFixed(1)+' px';$('coords').textContent=`X ${Math.round(100*sx/s.W)}% · Y ${Math.round(100*sy/s.H)}%`;}else{$('trackingStatus').textContent='ПОТЕРЯН';$('trackingStatus').style.color='#fbc57b';$('trackingPill').textContent='● СОВПАДЕНИЕ ПОТЕРЯНО';$('trackTitle').textContent='Не удалось сопоставить';$('trackDescription').textContent='Верни предмет в предыдущую область или выдели его заново.';}$('confidence').textContent=Math.round(result.confidence*100)+'%';$('instruction').classList.add('hidden');}
+function updateTracking(){
+  if(!s.tracker)return;
+  const result=trackObject(s.frame,s.W,s.H,s.tracker);s.result=result;
+  if(result.found){
+    const b=result.box,sx=b.x+b.w/2,sy=b.y+b.h/2;
+    s.trail.push({x:sx,y:sy});if(s.trail.length>38)s.trail.shift();
+    $('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';
+    $('trackingPill').textContent='● ТОЧКИ СОГЛАСОВАНЫ';
+    $('trackTitle').textContent='Удерживает предмет';
+    $('trackDescription').textContent=`Поиск по характерным точкам. Ошибка согласования: ${result.rms.toFixed(1)} px`;
+    $('trackScore').textContent=`${result.inliers}/${result.total} точек`;
+    $('coords').textContent=`X ${Math.round(100*sx/s.W)}% · Y ${Math.round(100*sy/s.H)}%`;
+  }else{
+    $('trackingStatus').textContent='ПОТЕРЯН';$('trackingStatus').style.color='#fbc57b';
+    $('trackingPill').textContent='● НЕТ СОГЛАСОВАННОГО ДВИЖЕНИЯ';
+    $('trackTitle').textContent='Недостаточно точек';
+    $('trackScore').textContent=`${result.inliers}/${result.total} точек`;
+    $('trackDescription').textContent='Замедли движение либо обведи предмет заново. Попробуй обложку с рисунком.';
+  }
+  $('confidence').textContent=result.found?`${Math.round(result.confidence*100)}%`:'—';
+  $('instruction').classList.add('hidden');
+}
 function drawSource(src){const W=stage.clientWidth,H=stage.clientHeight;ctx.fillStyle='#081b23';ctx.fillRect(0,0,W,H);const factor=Math.min(W/src.W,H/src.H);const p={x:(W-src.W*factor)/2,y:(H-src.H*factor)/2,w:src.W*factor,h:src.H*factor};s.present=p;ctx.drawImage(src.image,p.x,p.y,p.w,p.h);
   const tx=x=>p.x+x*p.w/s.W,ty=y=>p.y+y*p.h/s.H;
   if(s.trail.length>1){ctx.beginPath();ctx.strokeStyle='#bdf69ab2';ctx.lineWidth=2;for(let i=0;i<s.trail.length;i++){const t=s.trail[i];if(i===0)ctx.moveTo(tx(t.x),ty(t.y));else ctx.lineTo(tx(t.x),ty(t.y));}ctx.stroke();}
-  if(s.tracker){const b=s.tracker.box;const found=s.result?.found??true;const c=found?'#c4f49b':'#fbc57b';ctx.save();ctx.strokeStyle=c;ctx.lineWidth=2.5;ctx.shadowColor=c;ctx.shadowBlur=8;ctx.strokeRect(tx(b.x),ty(b.y),b.w*p.w/s.W,b.h*p.h/s.H);ctx.shadowBlur=0;ctx.fillStyle='#0b2325d9';const label=found?'ОБРАЗЕЦ':'ПОТЕРЯНО';const labelX=Math.max(p.x,tx(b.x)),labelY=Math.max(p.y+18,ty(b.y));ctx.fillRect(labelX,labelY-17,78,16);ctx.fillStyle=c;ctx.font='bold 10px system-ui';ctx.fillText(label,labelX+6,labelY-5);ctx.restore();}
+  if(s.tracker){
+    const b=s.tracker.box,found=s.result?.found??true,c=found?'#c4f49b':'#fbc57b';
+    const corners=s.tracker.polygon;
+    ctx.save();ctx.strokeStyle=c;ctx.lineWidth=2.5;ctx.shadowColor=c;ctx.shadowBlur=8;
+    ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(tx(p.x),ty(p.y)):ctx.moveTo(tx(p.x),ty(p.y)));ctx.closePath();ctx.stroke();ctx.shadowBlur=0;
+    if(found&&s.result?.points){
+      for(const p of s.result.points){ctx.fillStyle='#c4f49bcc';ctx.beginPath();ctx.arc(tx(p.x),ty(p.y),2.15,0,Math.PI*2);ctx.fill();}
+    }
+    ctx.fillStyle='#0b2325df';const label=found?'ХАРАКТЕРНЫЕ ТОЧКИ':'ПОТЕРЯНО';
+    const labelX=Math.max(p.x,tx(b.x)),labelY=Math.max(p.y+18,ty(b.y));
+    ctx.fillRect(labelX,labelY-17,found?151:92,17);ctx.fillStyle=c;ctx.font='bold 10px system-ui';ctx.fillText(label,labelX+6,labelY-5);ctx.restore();
+  }
   if(s.selector){const {x0,y0,x1,y1}=s.selector;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#f5f8f1';ctx.lineWidth=2;ctx.fillStyle='#bcf3a52c';ctx.fillRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));ctx.strokeRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));ctx.restore();}
 }
 function tick(now){requestAnimationFrame(tick);if(!s.ready||!s.mode||now-s.last<75)return;const dt=now-s.last;if(s.last&&dt<500){const fps=1000/dt;s.fps=s.fps ? s.fps*.72+fps*.28 : fps;}s.last=now;if(s.mode==='demo')fillDemo((now-s.demostart)/1000);const src=source();if(!src)return;
@@ -473,7 +591,7 @@ function onPointerDown(e){if(!s.ready||!s.frame)return;const p=pointerPos(e);if(
 function onPointerMove(e){if(!s.selector||s.selector.id!==e.pointerId)return;const p=pointerPos(e);const q=s.present;s.selector.x1=Math.max(q.x,Math.min(q.x+q.w,p.x));s.selector.y1=Math.max(q.y,Math.min(q.y+q.h,p.y));const src=source();if(src)drawSource(src);}
 function onPointerUp(e){if(!s.selector||s.selector.id!==e.pointerId)return;const sel=s.selector;s.selector=null;const start=framePos({x:sel.x0,y:sel.y0}),end=framePos({x:sel.x1,y:sel.y1});let box={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(start.x-end.x),h:Math.abs(start.y-end.y)};const tap=Math.hypot(sel.x1-sel.x0,sel.y1-sel.y0)<12;
   if(tap){box={x:start.x-36,y:start.y-27,w:72,h:54};}box.x=Math.max(0,Math.min(s.W-12,box.x));box.y=Math.max(0,Math.min(s.H-12,box.y));box.w=Math.min(box.w,s.W-box.x);box.h=Math.min(box.h,s.H-box.y);
-  const tracker=createTracker(s.frame,s.W,s.H,box);if(tracker.error){toast(tracker.error);return;}s.tracker=tracker;s.result={found:true,box:tracker.box,score:1,confidence:1};s.trail=[];$('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';$('trackTitle').textContent='Предмет выбран';$('trackDescription').textContent='Теперь плавно двигай предмет или телефон';$('trackScore').textContent='0.0 px';$('confidence').textContent='100%';$('instruction').classList.add('hidden');$('trackingPill').textContent='● ОБЪЕКТ В КАДРЕ';toast('Предмет выделен. Попробуй переместить его.');}
+  const tracker=createTracker(s.frame,s.W,s.H,box);if(tracker.error){toast(tracker.error);return;}s.tracker=tracker;s.result={found:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:1,confidence:1};s.trail=[];$('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';$('trackTitle').textContent='Предмет выбран';$('trackDescription').textContent='Теперь медленно обходи предмет, удерживая его в кадре';$('trackScore').textContent=`${tracker.points.length} точек`; $('confidence').textContent='—';$('instruction').classList.add('hidden');$('trackingPill').textContent='● ОБЪЕКТ В КАДРЕ';toast(`Запомнил ${tracker.points.length} характерных точек. Медленно обходи предмет.`);}
 
 $('cameraBtn').addEventListener('click',startCamera);$('bigCamera').addEventListener('click',startCamera);$('demoBtn').addEventListener('click',startDemo);$('bigDemo').addEventListener('click',startDemo);$('stopBtn').addEventListener('click',stop);$('resetBtn').addEventListener('click',()=>{clearSelection();if(s.mode)toast('Выдели новый предмет рамкой.');});$('flipBtn').addEventListener('click',()=>{s.facing=s.facing==='environment'?'user':'environment';startCamera();});$('fileBtn').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',async e=>{await startFile(e.target.files?.[0]);e.target.value='';});
 stage.addEventListener('pointerdown',onPointerDown);stage.addEventListener('pointermove',onPointerMove);stage.addEventListener('pointerup',onPointerUp);stage.addEventListener('pointercancel',()=>{s.selector=null;});
