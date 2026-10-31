@@ -70,7 +70,7 @@
 </div>
 <div id="shade" class="shade hidden"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Проверка на обычном предмете</h2><ol><li>Открой «Камера» и разреши доступ.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Медленно обходи неподвижный предмет. Рамка следует за точками внутри него. Зелёная рамка показывает согласованное движение точек внутри предмета; жёлтая означает потерю надёжных совпадений.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают предметы с надписями, углами и узорами. При обходе предмета меняются видимые грани: сильный поворот или выход из кадра всё равно могут вызвать потерю. Статистика бета-распределения не участвует в трекинге.</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
+<div id="help" class="modal-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><button id="closeHelp" class="small-btn modal-close">×</button><span class="eyebrow">КАК ЭТО РАБОТАЕТ</span><h2 id="helpTitle">Проверка на обычном предмете</h2><ol><li>Открой «Камера» и разреши доступ.</li><li>Пальцем нарисуй прямоугольник вокруг книги, пульта, игрушки или другого предмета. Быстрое касание выберет небольшую область автоматически.</li><li>Медленно обходи неподвижный предмет. Рамка следует за точками внутри него. Зелёная рамка показывает согласованное движение точек внутри предмета; жёлтая пунктирная рамка означает временную потерю: память сохраняется, начинается поиск во всём кадре.</li><li>Открой «Анализ», чтобы увидеть карты границ и статистику.</li><li>Нажми ↺ для нового выбора. Попробуй «Пример», если камера недоступна.</li></ol><p>Лучше работают предметы с надписями, углами и узорами. При обходе предмета меняются видимые грани: сильный поворот или выход из кадра могут привести к временному поиску. Сайт запоминает характерные точки нескольких успешных ракурсов и пытается найти объект снова, когда он возвращается в кадр. При сильной смене внешнего вида может потребоваться повторный выбор. Статистика бета-распределения не участвует в трекинге.</p><button id="okayHelp" class="btn primary" style="margin-top:12px">Понятно</button></div></div>
 <video id="video" playsinline autoplay muted style="display:none"></video>
 <script>
 // ===== vision.js =====
@@ -322,11 +322,11 @@ function inside(poly,x,y){let result=false;for(let i=0,j=poly.length-1;i<poly.le
  const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y)) && x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)result=!result;
 }return result;}
 function shrinkPoly(poly,k=.13){const c={x:poly.reduce((s,p)=>s+p.x,0)/poly.length,y:poly.reduce((s,p)=>s+p.y,0)/poly.length};return poly.map(p=>({x:c.x+(p.x-c.x)*(1-k),y:c.y+(p.y-c.y)*(1-k)}));}
-function findCorners(image,w,h,poly,maxCount=75,existing=[]){
- const region=shrinkPoly(poly),bound=polygonBounds(region,w,h),candidates=[];
+function findCorners(image,w,h,poly,maxCount=75,existing=[],step=2,shrink=.13){
+ const region=shrinkPoly(poly,shrink),bound=polygonBounds(region,w,h),candidates=[];
  const left=Math.max(7,Math.floor(bound.x)),top=Math.max(7,Math.floor(bound.y));
  const right=Math.min(w-8,Math.ceil(bound.x+bound.w)),bottom=Math.min(h-8,Math.ceil(bound.y+bound.h));
- for(let y=top;y<=bottom;y+=2)for(let x=left;x<=right;x+=2){
+ for(let y=top;y<=bottom;y+=step)for(let x=left;x<=right;x+=step){
    if(!inside(region,x,y))continue;
    let a=0,b=0,c=0;
    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
@@ -392,13 +392,13 @@ function followPoint(prev,next,halfPrev,halfNext,w,h,point,predict){
  if(Math.hypot(back.x-point.x,back.y-point.y)>2.8)return null;
  return {old:point,now:{x:fine.x,y:fine.y},score:fine.score};
 }
-function solvePair(p,q){
+function solvePair(p,q,limits={minScale:.72,maxScale:1.38,maxAngle:.45}){
  const dx=p[1].old.x-p[0].old.x,dy=p[1].old.y-p[0].old.y;
  const du=p[1].now.x-p[0].now.x,dv=p[1].now.y-p[0].now.y;
  const d=dx*dx+dy*dy;if(d<75)return null;
  const a=(dx*du+dy*dv)/d,b=(dx*dv-dy*du)/d;
  const scale=Math.hypot(a,b),angle=Math.atan2(b,a);
- if(scale<.72||scale>1.38||Math.abs(angle)>.45)return null;
+ if(scale<limits.minScale||scale>limits.maxScale||Math.abs(angle)>limits.maxAngle)return null;
  return {a,b,tx:p[0].now.x-a*p[0].old.x+b*p[0].old.y,ty:p[0].now.y-b*p[0].old.x-a*p[0].old.y};
 }
 function apply(t,p){return {x:t.a*p.x-t.b*p.y+t.tx,y:t.b*p.x+t.a*p.y+t.ty};}
@@ -437,21 +437,140 @@ function consensus(matches){
  const rms=Math.sqrt(best.reduce((sum,m)=>sum+error(t,m)**2,0)/best.length);
  return {transform:t,inliers:best,rms};
 }
+/** Save small, normalized appearance patches. No video frames are retained. */
+function makeView(gray,w,h,polygon,points){
+ const features=[];
+ for(const p of points){
+  const ref=patchReference(gray,w,h,p.x,p.y,4);
+  if(ref)features.push({x:p.x,y:p.y,ref});
+  if(features.length>=55)break;
+ }
+ return features.length>=8?{polygon:polygon.map(p=>({...p})),features}:null;
+}
+function rememberView(tracker,w,h){
+ const view=makeView(tracker.gray,w,h,tracker.polygon,tracker.points);
+ if(!view)return;
+ if(!tracker.views)tracker.views=[];
+ if(tracker.views.length>=5)tracker.views.splice(1,1); // first selection is always retained
+ tracker.views.push(view);
+}
+function globalCorners(gray,w,h){
+ const all=[];
+ const cols=4,rows=3;
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+   const x=8+col*(w-16)/cols, y=8+row*(h-16)/rows;
+   const bw=(w-16)/cols,bh=(h-16)/rows;
+   // Per-cell quota prevents a high-contrast background from hiding the object.
+   all.push(...findCorners(gray,w,h,rectCorners({x,y,w:bw,h:bh}),24,[],1,.02));
+ }
+ return all;
+}
+function patchSimilarity(a,b){
+ const av=a.vals,bv=b.vals;
+ let dot=0;for(let i=0;i<av.length;i++)dot+=av[i]*bv[i];
+ return dot/Math.sqrt(a.variation*b.variation);
+}
+/** Find distinct appearance matches without assuming where the object moved. */
+function matchView(view,candidates){
+ const pairs=[];
+ for(const feature of view.features){
+   let first=-3,second=-3,bestIndex=-1,bestPoint=null;
+   for(let j=0;j<candidates.length;j++){
+     // Local pixel offsets compensate for grid sampling and small camera shakes.
+     let score=-3,point=null;
+     for(const candidate of candidates[j].offsets){
+       const value=patchSimilarity(feature.ref,candidate.ref);
+       if(value>score){score=value;point=candidate;}
+     }
+     if(score>first){second=first;first=score;bestIndex=j;bestPoint=point;}
+     else if(score>second)second=score;
+   }
+   // Strong appearance and a distinct winner; ambiguous repetitions are ignored.
+   if(first>=.79&&first-second>=.035) pairs.push({old:{x:feature.x,y:feature.y},now:{x:bestPoint.x,y:bestPoint.y},score:first,index:bestIndex});
+ }
+ pairs.sort((a,b)=>b.score-a.score);
+ const used=new Set();
+ return pairs.filter(p=>{if(used.has(p.index))return false;used.add(p.index);return true;});
+}
+/** Geometric verification rejects isolated matching patches on the background. */
+function consensusRecovery(matches){
+ if(matches.length<5)return null;
+ let best=[];let bestErr=Infinity;
+ const threshold=3.8;
+ for(let i=0;i<matches.length;i++){
+  for(let j=i+1;j<matches.length;j++){
+   const t=solvePair([matches[i],matches[j]],{minScale:.52,maxScale:1.85,maxAngle:1.3});
+   if(!t)continue;
+   const inliers=matches.filter(m=>error(t,m)<threshold);
+   const err=inliers.reduce((sum,m)=>sum+error(t,m),0);
+   if(inliers.length>best.length || inliers.length===best.length && err<bestErr){best=inliers;bestErr=err;}
+  }
+ }
+ if(best.length<5)return null;
+ let t=refine(best);if(!t)return null;
+ best=matches.filter(m=>error(t,m)<threshold);
+ if(best.length<5)return null;
+ t=refine(best)??t;
+ const scale=Math.hypot(t.a,t.b),angle=Math.atan2(t.b,t.a);
+ if(scale<.52||scale>1.85||Math.abs(angle)>1.3)return null;
+ const rms=Math.sqrt(best.reduce((sum,m)=>sum+error(t,m)**2,0)/best.length);
+ if(rms>2.4)return null;
+ const xs=best.map(m=>m.old.x),ys=best.map(m=>m.old.y);
+ // Similar-looking details must be spread over a 2-D region, not one edge.
+ if(Math.max(...xs)-Math.min(...xs)<11||Math.max(...ys)-Math.min(...ys)<11)return null;
+ return {transform:t,inliers:best,rms};
+}
+function validPolygon(poly,w,h){
+ const b=polygonBounds(poly,w,h);
+ return poly.every(p=>p.x>=-8&&p.y>=-8&&p.x<w+8&&p.y<h+8)
+  &&b.w*b.h>=350&&b.w<w*.95&&b.h<h*.95;
+}
+/** Whole-frame re-identification from saved viewpoints after a lost track. */
+function reacquireObject(gray,w,h,tracker){
+ if(!tracker.views?.length)return null;
+ const offsets=[[0,0],[-1,0],[1,0],[0,-1],[0,1]];
+ const candidates=globalCorners(gray,w,h).map(p=>({x:p.x,y:p.y,
+   offsets:offsets.map(([dx,dy])=>({x:p.x+dx,y:p.y+dy,ref:patchReference(gray,w,h,p.x+dx,p.y+dy,4)})).filter(v=>v.ref)
+ })).filter(p=>p.offsets.length);
+ if(candidates.length<7)return null;
+ let winner=null;
+ for(const view of tracker.views){
+   const pairs=matchView(view,candidates);
+   const verified=consensusRecovery(pairs);
+   if(!verified)continue;
+   const minimum=Math.max(5,Math.ceil(view.features.length*.15));
+   if(verified.inliers.length<minimum)continue;
+   const meanScore=verified.inliers.reduce((sum,m)=>sum+m.score,0)/verified.inliers.length;
+   if(meanScore<.85)continue;
+   const polygon=view.polygon.map(p=>apply(verified.transform,p));
+   if(!validPolygon(polygon,w,h))continue;
+   const confidence=verified.inliers.length/Math.max(12,view.features.length)*Math.exp(-verified.rms/3);
+   const rank=verified.inliers.length*meanScore/(1+verified.rms);
+   if(!winner||rank>winner.rank)winner={polygon,box:polygonBounds(polygon,w,h),points:verified.inliers.map(m=>m.now),
+     inliers:verified.inliers.length,total:pairs.length,rms:verified.rms,confidence,rank};
+ }
+ return winner;
+}
 function createTracker(imageData,width,height,rawBox){
  const box=clampBox(rawBox,width,height);
  if(box.w<25||box.h<25)return {error:'Выдели предмет рамкой размером хотя бы 25 × 25 пикселей.'};
  const gray=luminance(imageData,width,height),polygon=rectCorners(box);
  const points=findCorners(gray,width,height,polygon,75);
  if(points.length<8)return {error:'На предмете слишком мало различимых углов и деталей. Выбери обложку книги, пульт или предмет с рисунком.'};
- return {box,polygon,gray,points,frame:0,lost:0,motion:{x:0,y:0},confidence:1,score:1,
-   inliers:points.length,total:points.length,rms:0};
+ const tracker={box,polygon,gray,points,frame:0,lost:0,motion:{x:0,y:0},confidence:1,score:1,
+   inliers:points.length,total:points.length,rms:0,views:[]};
+ const first=makeView(gray,width,height,polygon,points);
+ if(first)tracker.views.push(first);
+ return tracker;
 }
 function trackObject(imageData,width,height,tracker){
  if(!tracker||tracker.error)return null;
  const next=luminance(imageData,width,height),prev=tracker.gray;
- const hp=down2(prev,width,height),hn=down2(next,width,height);
+ // Avoid repeated expensive local matching to an increasingly stale frame.
+ const hp=tracker.lost>=3?null:down2(prev,width,height);
+ const hn=tracker.lost>=3?null:down2(next,width,height);
  const matches=[];
- for(const p of tracker.points){const m=followPoint(prev,next,hp,hn,width,height,p,tracker.motion);if(m)matches.push(m);}
+ if(hp&&hn)for(const p of tracker.points){const m=followPoint(prev,next,hp,hn,width,height,p,tracker.motion);if(m)matches.push(m);}
  const c=consensus(matches);
  const required=Math.max(5,Math.min(9,Math.ceil(tracker.points.length*.24)));
  const ok=!!c&&c.inliers.length>=required && (matches.length<=10||c.inliers.length/matches.length>=.42);
@@ -466,6 +585,7 @@ function trackObject(imageData,width,height,tracker){
      y:c.transform.ty+c.transform.b*oldCenter.x+(c.transform.a-1)*oldCenter.y};
    tracker.points=c.inliers.map(m=>m.now);
    tracker.gray=next;tracker.frame++;tracker.lost=0;
+   if(tracker.frame%18===0)rememberView(tracker,width,height);
    if(tracker.frame%6===0&&tracker.points.length<65){
     const fresh=findCorners(next,width,height,tracker.polygon,75,tracker.points);
     tracker.points.push(...fresh);
@@ -473,14 +593,32 @@ function trackObject(imageData,width,height,tracker){
    tracker.inliers=c.inliers.length;tracker.total=matches.length;tracker.rms=c.rms;
    tracker.score=c.inliers.length/Math.max(1,matches.length);
    tracker.confidence=Math.min(1,c.inliers.length/Math.max(12,Math.min(45,tracker.points.length)))*Math.exp(-c.rms/5);
-   return {found:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:tracker.score,
-     confidence:tracker.confidence,inliers:tracker.inliers,total:tracker.total,rms:c.rms,lost:0};
+   return {found:true,recovered:false,box:tracker.box,polygon:tracker.polygon,points:tracker.points,score:tracker.score,
+     confidence:tracker.confidence,inliers:tracker.inliers,total:tracker.total,rms:c.rms,lost:0,views:tracker.views.length};
   }
  }
  tracker.lost=Math.min(999,tracker.lost+1);
  tracker.motion={x:0,y:0};tracker.score=0;tracker.confidence=0;
- return {found:false,box:tracker.box,polygon:tracker.polygon,points:[],score:0,confidence:0,
-   inliers:c?.inliers.length||0,total:matches.length,rms:null,lost:tracker.lost};
+ // One global attempt immediately, then every fourth missing frame to save CPU.
+ if(tracker.lost===1||tracker.lost%4===0){
+   const restored=reacquireObject(next,width,height,tracker);
+   if(restored){
+     tracker.polygon=restored.polygon;tracker.box=restored.box;
+     tracker.gray=next;tracker.points=restored.points;tracker.motion={x:0,y:0};
+     tracker.lost=0;tracker.frame++;tracker.inliers=restored.inliers;
+     tracker.total=restored.total;tracker.rms=restored.rms;
+     tracker.score=restored.inliers/Math.max(1,restored.total);
+     tracker.confidence=Math.min(1,restored.confidence);
+     if(tracker.points.length<65){
+       tracker.points.push(...findCorners(next,width,height,tracker.polygon,75,tracker.points));
+     }
+     return {found:true,recovered:true,box:tracker.box,polygon:tracker.polygon,points:tracker.points,
+       score:tracker.score,confidence:tracker.confidence,inliers:tracker.inliers,total:tracker.total,
+       rms:restored.rms,lost:0,views:tracker.views.length};
+   }
+ }
+ return {found:false,recovered:false,searching:true,box:tracker.box,polygon:tracker.polygon,points:[],score:0,confidence:0,
+   inliers:c?.inliers.length||0,total:matches.length,rms:null,lost:tracker.lost,views:tracker.views.length};
 }
 
 
@@ -548,19 +686,20 @@ function updateTracking(){
   const result=trackObject(s.frame,s.W,s.H,s.tracker);s.result=result;
   if(result.found){
     const b=result.box,sx=b.x+b.w/2,sy=b.y+b.h/2;
+    if(result.recovered){s.trail=[];toast(`Предмет снова найден: совпали ${result.inliers} точек.`);}
     s.trail.push({x:sx,y:sy});if(s.trail.length>38)s.trail.shift();
-    $('trackingStatus').textContent='НАЙДЕН';$('trackingStatus').style.color='#c4f49b';
-    $('trackingPill').textContent='● ТОЧКИ СОГЛАСОВАНЫ';
-    $('trackTitle').textContent='Удерживает предмет';
-    $('trackDescription').textContent=`Поиск по характерным точкам. Ошибка согласования: ${result.rms.toFixed(1)} px`;
+    $('trackingStatus').textContent=result.recovered?'ВОССТАНОВЛЕН':'НАЙДЕН';$('trackingStatus').style.color='#c4f49b';
+    $('trackingPill').textContent=result.recovered?'● ОБЪЕКТ ВОССТАНОВЛЕН':'● ТОЧКИ СОГЛАСОВАНЫ';
+    $('trackTitle').textContent=result.recovered?'Снова нашёл предмет':'Удерживает предмет';
+    $('trackDescription').textContent=`${result.recovered?'Повторный поиск по кадру. ':'Слежение по соседним кадрам. '}Память: ${result.views??1} ракурсов. Ошибка: ${result.rms.toFixed(1)} px`;
     $('trackScore').textContent=`${result.inliers}/${result.total} точек`;
     $('coords').textContent=`X ${Math.round(100*sx/s.W)}% · Y ${Math.round(100*sy/s.H)}%`;
   }else{
-    $('trackingStatus').textContent='ПОТЕРЯН';$('trackingStatus').style.color='#fbc57b';
-    $('trackingPill').textContent='● НЕТ СОГЛАСОВАННОГО ДВИЖЕНИЯ';
-    $('trackTitle').textContent='Недостаточно точек';
-    $('trackScore').textContent=`${result.inliers}/${result.total} точек`;
-    $('trackDescription').textContent='Замедли движение либо обведи предмет заново. Попробуй обложку с рисунком.';
+    $('trackingStatus').textContent='ИЩУ';$('trackingStatus').style.color='#fbc57b';
+    $('trackingPill').textContent='◌ ПОИСК ПО КАДРУ';
+    $('trackTitle').textContent='Предмет временно не найден';
+    $('trackScore').textContent=`${result.views??1} ракурсов в памяти`;
+    $('trackDescription').textContent='Память сохранена. Верни предмет в кадр — программа попробует найти его снова. Выбери ↺, только если нужен другой предмет.';
   }
   $('confidence').textContent=result.found?`${Math.round(result.confidence*100)}%`:'—';
   $('instruction').classList.add('hidden');
@@ -572,13 +711,14 @@ function drawSource(src){const W=stage.clientWidth,H=stage.clientHeight;ctx.fill
     const b=s.tracker.box,found=s.result?.found??true,c=found?'#c4f49b':'#fbc57b';
     const corners=s.tracker.polygon;
     ctx.save();ctx.strokeStyle=c;ctx.lineWidth=2.5;ctx.shadowColor=c;ctx.shadowBlur=8;
-    ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(tx(p.x),ty(p.y)):ctx.moveTo(tx(p.x),ty(p.y)));ctx.closePath();ctx.stroke();ctx.shadowBlur=0;
+    if(!found)ctx.setLineDash([7,5]);
+    ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(tx(p.x),ty(p.y)):ctx.moveTo(tx(p.x),ty(p.y)));ctx.closePath();ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;
     if(found&&s.result?.points){
       for(const p of s.result.points){ctx.fillStyle='#c4f49bcc';ctx.beginPath();ctx.arc(tx(p.x),ty(p.y),2.15,0,Math.PI*2);ctx.fill();}
     }
-    ctx.fillStyle='#0b2325df';const label=found?'ХАРАКТЕРНЫЕ ТОЧКИ':'ПОТЕРЯНО';
+    ctx.fillStyle='#0b2325df';const label=found?(s.result?.recovered?'СНОВА НАЙДЕН':'ХАРАКТЕРНЫЕ ТОЧКИ'):'ПОИСК ОБЪЕКТА';
     const labelX=Math.max(p.x,tx(b.x)),labelY=Math.max(p.y+18,ty(b.y));
-    ctx.fillRect(labelX,labelY-17,found?151:92,17);ctx.fillStyle=c;ctx.font='bold 10px system-ui';ctx.fillText(label,labelX+6,labelY-5);ctx.restore();
+    ctx.fillRect(labelX,labelY-17,found?151:120,17);ctx.fillStyle=c;ctx.font='bold 10px system-ui';ctx.fillText(label,labelX+6,labelY-5);ctx.restore();
   }
   if(s.selector){const {x0,y0,x1,y1}=s.selector;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#f5f8f1';ctx.lineWidth=2;ctx.fillStyle='#bcf3a52c';ctx.fillRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));ctx.strokeRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));ctx.restore();}
 }
