@@ -1,0 +1,96 @@
+name: Real aerial imagery vs MATLAB Bayesian recursion
+on:
+  push:
+    paths:
+      - '.github/workflows/aerial-bayes-real.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-real-aerial-pairs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install numerical dependencies
+        run: python -m pip install numpy scipy Pillow numba matplotlib
+      - name: Download actual aerial and satellite images and run original equations
+        run: |
+          python - <<'PY'
+          import sys, urllib.request, json, csv, io, traceback
+          from pathlib import Path
+          from PIL import Image
+          import numpy as np
+          base=Path("experiments/aerial_bayes_2026_11_07")
+          sys.path.insert(0,str(base.resolve()))
+          from matlab_port import OriginalParameters,prepare_inputs,run_original_experiment,save_results
+          origin="https://raw.githubusercontent.com/TerboucheHacene/visual_localization/main/data"
+          inputs=base/"inputs"; outputs=base/"results"
+          inputs.mkdir(parents=True,exist_ok=True);outputs.mkdir(parents=True,exist_ok=True)
+          cases=[("turku_1","drone_image_1.png","sat_map_00.png"),("turku_2","drone_image_2.png","sat_map_03.png")]
+          def get(remote,local):
+              req=urllib.request.Request(origin+"/"+remote,headers={"User-Agent":"MATLAB-Python-research/1.0"})
+              raw=urllib.request.urlopen(req,timeout=120).read()
+              assert len(raw)>100
+              local.write_bytes(raw)
+              print("SOURCE",remote,"bytes",len(raw),flush=True)
+          get("map/map.csv",inputs/"map.csv");get("query/photo_metadata.csv",inputs/"photo_metadata.csv")
+          maps={r["Filename"]:r for r in csv.DictReader((inputs/"map.csv").open())}
+          photos={r["Filename"]:r for r in csv.DictReader((inputs/"photo_metadata.csv").open())}
+          outputs_summary=[]
+          import matplotlib;matplotlib.use('Agg')
+          import matplotlib.pyplot as plt
+          from matplotlib.patches import Rectangle
+          for key, drone, sat in cases:
+              case_dir=outputs/key;case_dir.mkdir(parents=True,exist_ok=True)
+              get("query/"+drone,inputs/drone)
+              get("map/"+sat,inputs/sat)
+              for name,src in (("drone.png",inputs/drone),("satellite.png",inputs/sat)):
+                  with Image.open(src) as im:
+                      print("ORIGINAL_SIZE",key,name,im.size,flush=True)
+                      im.convert("RGB").resize((640,480),Image.Resampling.BICUBIC).save(case_dir/name)
+              geom=maps[sat]; position=photos[drone]
+              lat=float(position["Latitude"]);lon=float(position["Longitude"])
+              north=float(geom["Top_left_lat"]);south=float(geom["Bottom_right_lat"])
+              west=float(geom["Top_left_lon"]);east=float(geom["Bottom_right_lon"])
+              gps_x=(lon-west)/(east-west)*640;gps_y=(north-lat)/(north-south)*480
+              assert 0<=gps_x<640 and 0<=gps_y<480,(key,gps_x,gps_y)
+              inputs_data=prepare_inputs(case_dir/"drone.png",case_dir/"satellite.png",OriginalParameters())
+              result=run_original_experiment(inputs_data,progress=True)
+              save_results(inputs_data,result,case_dir/"raw",make_plots=False)
+              fig,ax=plt.subplots(2,2,figsize=(11,8),layout="constrained")
+              ax[0,0].imshow(inputs_data["ref_raw"],cmap="gray")
+              ax[0,0].add_patch(Rectangle((199,179),201,51,fill=False,edgecolor="yellow",linewidth=2))
+              ax[0,0].set_title("UAV frame: reference fragment")
+              ax[0,1].imshow(inputs_data["current_raw"],cmap="gray")
+              ax[0,1].add_patch(Rectangle((170,160),251,101,fill=False,edgecolor="white",linewidth=2,linestyle="--"))
+              for h in result["history"]:
+                  box=h.get("box_pixel_0_based")
+                  if box:ax[0,1].add_patch(Rectangle((box["x"],box["y"]),box["w"],box["h"],fill=False,edgecolor="orange",linewidth=2))
+              ax[0,1].scatter([gps_x],[gps_y],c="cyan",marker="+",s=80)
+              ax[0,1].set_title("Satellite tile (+ = UAV GPS centre only)")
+              for z in ax[0]:z.axis("off")
+              for aa,name,title in [(ax[1,0],"p1","Posterior statistical structure p1"),(ax[1,1],"S1cir","Accumulated S1")]:
+                  a=aa.imshow(result[name],origin="lower",cmap="viridis",aspect="auto")
+                  aa.set_title(title);aa.set_xlabel("m");aa.set_ylabel("h");fig.colorbar(a,ax=aa)
+              fig.savefig(case_dir/"result.png",dpi=130);plt.close(fig)
+              info={"case":key,"drone":drone,"satellite":sat,"drone_gps":[lat,lon],
+                    "gps_center_on_satellite":[gps_x,gps_y],"q":inputs_data["metrics"]["Q"],
+                    "history":result["history"],"p1_min":float(np.nanmin(result["p1"])),
+                    "p1_max":float(np.nanmax(result["p1"])),"p1_out_of_range":result["out_of_bounds_p1"],
+                    "note":"GPS is only dataset pair verification; it is not fed to the scan. Pixel error is not defined without view registration."}
+              outputs_summary.append(info)
+              (case_dir/"summary.json").write_text(json.dumps(info,ensure_ascii=False,indent=2))
+              print("REAL_AERIAL_EXPERIMENT_RESULT",json.dumps(info,ensure_ascii=False),flush=True)
+          (outputs/"summary_all.json").write_text(json.dumps(outputs_summary,ensure_ascii=False,indent=2))
+          print("REAL_AERIAL_EXPERIMENT_SUCCESS",len(outputs_summary),flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-aerial-matlab-bayes-results
+          path: experiments/aerial_bayes_2026_11_07/results/
+          if-no-files-found: warn
