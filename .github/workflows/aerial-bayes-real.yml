@@ -55,7 +55,7 @@ jobs:
               geom=maps[sat]; position=photos[drone]
               lat=float(position["Latitude"]);lon=float(position["Longitude"])
               north=float(geom["Top_left_lat"]);south=float(geom["Bottom_right_lat"])
-              west=float(geom["Top_left_lon"]);east=float(geom["Bottom_right_lon"])
+              west=float(geom["Top_left_lon"]);east=float(geom["Bottom_right_long"])
               gps_x=(lon-west)/(east-west)*640;gps_y=(north-lat)/(north-south)*480
               assert 0<=gps_x<640 and 0<=gps_y<480,(key,gps_x,gps_y)
               inputs_data=prepare_inputs(case_dir/"drone.png",case_dir/"satellite.png",OriginalParameters())
